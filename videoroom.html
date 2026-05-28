@@ -5,377 +5,102 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<title>NearUs Video Room</title>
+<title>NearUs Room</title>
 
-<style>
+<link
+rel="stylesheet"
+href="css/videoroom.css">
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial,sans-serif;
-}
-
-body{
-
-    background:#030712;
-    color:white;
-    min-height:100vh;
-    overflow:hidden;
-}
-
-.roomContainer{
-
-    display:flex;
-    height:100vh;
-}
-
-
-/* =========================
-   VIDEO SECTION
-========================= */
-
-.videoSection{
-
-    flex:1;
-    padding:20px;
-    position:relative;
-}
-
-.topBar{
-
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    margin-bottom:20px;
-}
-
-.roomTitle{
-
-    font-size:28px;
-    font-weight:bold;
-}
-
-.leaveBtn{
-
-    width:120px;
-    height:50px;
-
-    border:none;
-    border-radius:15px;
-
-    background:#EF4444;
-
-    color:white;
-
-    font-size:16px;
-    font-weight:bold;
-
-    cursor:pointer;
-}
-
-
-/* =========================
-   VIDEOS
-========================= */
-
-.videoGrid{
-
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-
-    height:80vh;
-}
-
-.videoBox{
-
-    background:#111827;
-
-    border-radius:25px;
-
-    overflow:hidden;
-
-    position:relative;
-
-    border:2px solid rgba(255,255,255,0.04);
-}
-
-video{
-
-    width:100%;
-    height:100%;
-
-    object-fit:cover;
-
-    background:black;
-}
-
-.videoLabel{
-
-    position:absolute;
-
-    bottom:15px;
-    left:15px;
-
-    background:rgba(0,0,0,0.6);
-
-    padding:10px 15px;
-
-    border-radius:12px;
-
-    font-size:14px;
-}
-
-
-/* =========================
-   CHAT SECTION
-========================= */
-
-.chatSection{
-
-    width:350px;
-
-    background:#111827;
-
-    border-left:1px solid rgba(255,255,255,0.05);
-
-    display:flex;
-
-    flex-direction:column;
-}
-
-.chatHeader{
-
-    padding:20px;
-
-    font-size:24px;
-
-    font-weight:bold;
-
-    border-bottom:1px solid rgba(255,255,255,0.05);
-}
-
-.messages{
-
-    flex:1;
-
-    overflow-y:auto;
-
-    padding:20px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:15px;
-}
-
-.message{
-
-    background:#1F2937;
-
-    padding:12px 16px;
-
-    border-radius:15px;
-
-    max-width:80%;
-}
-
-.myMessage{
-
-    background:#8B5CF6;
-
-    align-self:flex-end;
-}
-
-.chatInputArea{
-
-    display:flex;
-
-    gap:10px;
-
-    padding:20px;
-
-    border-top:1px solid rgba(255,255,255,0.05);
-}
-
-.chatInputArea input{
-
-    flex:1;
-
-    height:50px;
-
-    border:none;
-
-    outline:none;
-
-    border-radius:12px;
-
-    padding:0 15px;
-
-    background:#1F2937;
-
-    color:white;
-}
-
-.chatInputArea button{
-
-    width:90px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#8B5CF6;
-
-    color:white;
-
-    font-weight:bold;
-
-    cursor:pointer;
-}
-
-
-/* =========================
-   CONTROLS
-========================= */
-
-.bottomControls{
-
-    position:absolute;
-
-    bottom:20px;
-
-    left:50%;
-
-    transform:translateX(-50%);
-
-    display:flex;
-
-    gap:18px;
-
-    background:rgba(17,24,39,0.9);
-
-    padding:14px 18px;
-
-    border-radius:25px;
-
-    backdrop-filter:blur(10px);
-}
-
-.controlBtn{
-
-    width:65px;
-    height:65px;
-
-    border:none;
-
-    border-radius:50%;
-
-    background:#1F2937;
-
-    color:white;
-
-    font-size:24px;
-
-    cursor:pointer;
-
-    transition:0.3s;
-}
-
-.controlBtn:hover{
-
-    transform:scale(1.08);
-
-    background:#374151;
-}
-
-
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width:900px){
-
-    .roomContainer{
-
-        flex-direction:column;
-        height:auto;
-    }
-
-    .videoGrid{
-
-        grid-template-columns:1fr;
-        height:auto;
-    }
-
-    .videoBox{
-
-        height:300px;
-    }
-
-    .chatSection{
-
-        width:100%;
-        height:400px;
-    }
-
-    body{
-
-        overflow:auto;
-    }
-}
-
-</style>
+<script defer
+src="js/videoroom.js"></script>
 
 </head>
 
 <body>
 
-<div class="roomContainer">
+<div class="app">
 
-    <!-- VIDEO SECTION -->
+    <!-- =========================
+         TOP BAR
+    ========================== -->
 
-    <div class="videoSection">
+    <div class="topBar">
 
-        <!-- TOP -->
+        <div class="topLeft">
 
-        <div class="topBar">
+            <h1 class="logo">
+                NearUs
+            </h1>
 
-            <div class="roomTitle"
-                 id="roomTitle">
-
-                ROOM
-
+            <div class="roomTitle">
+                Movie Night Room 🍿
             </div>
 
-            <button class="leaveBtn"
-                    onclick="window.location.href='home.html'">
+        </div>
 
-                Leave
+        <button class="leaveBtn">
+            Leave Room
+        </button>
 
-            </button>
+    </div>
+
+
+
+    <!-- =========================
+         MAIN LAYOUT
+    ========================== -->
+
+    <div class="mainLayout">
+
+        <!-- =========================
+             ACTIVITY SECTION
+        ========================== -->
+
+        <div class="activitySection">
+
+            <div class="activityWindow">
+
+                <div class="activityCenter">
+
+                    <div class="activityIcon">
+                        ✨
+                    </div>
+
+                    <h2>
+                        Shared Activity Zone
+                    </h2>
+
+                    <p>
+                        Movies • Games • Screen Share • Whiteboard
+                    </p>
+
+                </div>
+
+            </div>
 
         </div>
 
 
-        <!-- VIDEOS -->
 
-        <div class="videoGrid">
+        <!-- =========================
+             VIDEO SIDEBAR
+        ========================== -->
 
-            <!-- LOCAL -->
+        <div class="videoSidebar">
 
-            <div class="videoBox">
+            <!-- LOCAL USER -->
 
-                <video id="localVideo"
-                       autoplay
-                       muted
-                       playsinline>
+            <div class="videoCard">
+
+                <video
+                id="localVideo"
+                autoplay
+                muted
+                playsinline>
                 </video>
 
                 <div class="videoLabel">
@@ -385,17 +110,27 @@ video{
             </div>
 
 
-            <!-- REMOTE -->
 
-            <div class="videoBox">
+            <!-- REMOTE USER -->
 
-                <video id="remoteVideo"
-                       autoplay
-                       playsinline>
+            <div
+            class="videoCard"
+            id="remoteVideoCard"
+
+            style="display:none;">
+
+                <video
+                id="remoteVideo"
+                autoplay
+                playsinline>
                 </video>
 
-                <div class="videoLabel">
-                    Friend
+                <div
+                class="videoLabel"
+                id="remoteUserLabel">
+
+                    Connecting...
+
                 </div>
 
             </div>
@@ -405,37 +140,115 @@ video{
     </div>
 
 
-    <!-- CHAT -->
 
-    <div class="chatSection">
+    <!-- =========================
+         BOTTOM BAR
+    ========================== -->
 
-        <div class="chatHeader">
+    <div class="bottomBar">
 
-            Live Chat
+        <!-- FEATURE BUTTONS -->
+
+        <div class="featureButtons">
+
+            <!-- WATCH PARTY -->
+
+            <div class="featureCard">
+
+                <div class="featureIcon">
+                    🎬
+                </div>
+
+                <div class="featureText">
+                    Watch Party
+                </div>
+
+            </div>
+
+
+
+            <!-- SCREEN SHARE -->
+
+            <div class="featureCard">
+
+                <div class="featureIcon">
+                    🖥️
+                </div>
+
+                <div class="featureText">
+                    Screen Share
+                </div>
+
+            </div>
+
+
+
+            <!-- GAMES -->
+
+            <div class="featureCard">
+
+                <div class="featureIcon">
+                    🎮
+                </div>
+
+                <div class="featureText">
+                    Games
+                </div>
+
+            </div>
+
+
+
+            <!-- WHITEBOARD -->
+
+            <div class="featureCard">
+
+                <div class="featureIcon">
+                    ✏️
+                </div>
+
+                <div class="featureText">
+                    Whiteboard
+                </div>
+
+            </div>
 
         </div>
 
 
-        <!-- MESSAGES -->
 
-        <div class="messages"
-             id="messages">
+        <!-- CONTROL BUTTONS -->
 
-        </div>
+        <div class="bottomCenter">
+
+            <!-- MIC -->
+
+            <button class="controlBtn">
+                🎤
+            </button>
 
 
-        <!-- INPUT -->
 
-        <div class="chatInputArea">
+            <!-- CAMERA -->
 
-            <input type="text"
-                   id="messageInput"
-                   placeholder="Type message...">
+            <button class="controlBtn">
+                📹
+            </button>
 
-            <button id="sendBtn">
 
-                Send
 
+            <!-- EMOJI -->
+
+            <button class="controlBtn">
+                😊
+            </button>
+
+
+
+            <!-- END CALL -->
+
+            <button class="endCallBtn">
+                📞
             </button>
 
         </div>
@@ -444,486 +257,6 @@ video{
 
 </div>
 
-
-<!-- CONTROLS -->
-
-<div class="bottomControls">
-
-    <button class="controlBtn"
-            id="micBtn">
-
-        🎤
-
-    </button>
-
-    <button class="controlBtn"
-            id="cameraBtn">
-
-        📹
-
-    </button>
-
-</div>
-
-
-<script type="module">
-
-import {
-
-    initializeApp
-
-}
-
-from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-
-import {
-
-    getDatabase,
-    ref,
-    set,
-    get,
-    onValue,
-    push
-
-}
-
-from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-
-
-// =====================================
-// FIREBASE
-// =====================================
-
-const firebaseConfig = {
-
-    apiKey: "AIzaSyBl_f2bJEjmdTMbyZpfKXbhE7p87yXtHs4",
-
-    authDomain: "nearus-web.firebaseapp.com",
-
-    databaseURL:
-    "https://nearus-web-default-rtdb.asia-southeast1.firebasedatabase.app",
-
-    projectId: "nearus-web",
-
-    storageBucket: "nearus-web.firebasestorage.app",
-
-    messagingSenderId: "920428262831",
-
-    appId: "1:920428262831:web:042c145ca0c5724223ab5a"
-};
-
-const app =
-    initializeApp(firebaseConfig);
-
-const database =
-    getDatabase(app);
-
-
-// =====================================
-// ROOM
-// =====================================
-
-const params =
-    new URLSearchParams(window.location.search);
-
-const roomId =
-    params.get("room");
-
-document.getElementById(
-    "roomTitle"
-).innerText = roomId;
-
-
-// =====================================
-// VIDEOS
-// =====================================
-
-const localVideo =
-    document.getElementById("localVideo");
-
-const remoteVideo =
-    document.getElementById("remoteVideo");
-
-
-// =====================================
-// STREAMS
-// =====================================
-
-let localStream;
-let remoteStream;
-let peerConnection;
-
-
-// =====================================
-// STUN SERVER
-// =====================================
-
-const servers = {
-
-    iceServers: [
-
-        {
-            urls:
-            "stun:stun.l.google.com:19302"
-        }
-
-    ]
-};
-
-
-// =====================================
-// START CAMERA
-// =====================================
-
-async function startVideo(){
-
-    localStream =
-        await navigator.mediaDevices.getUserMedia({
-
-            video:true,
-            audio:true
-
-        });
-
-    localVideo.srcObject =
-        localStream;
-
-    remoteStream =
-        new MediaStream();
-
-    remoteVideo.srcObject =
-        remoteStream;
-
-    createPeer();
-
-    await startCall();
-}
-
-
-// =====================================
-// CREATE PEER
-// =====================================
-
-function createPeer(){
-
-    peerConnection =
-        new RTCPeerConnection(servers);
-
-
-    // LOCAL TRACKS
-
-    localStream
-        .getTracks()
-        .forEach(track => {
-
-            peerConnection.addTrack(
-                track,
-                localStream
-            );
-
-        });
-
-
-    // REMOTE TRACKS
-
-    peerConnection.ontrack =
-        event => {
-
-            event.streams[0]
-                .getTracks()
-                .forEach(track => {
-
-                    remoteStream.addTrack(track);
-
-                });
-
-        };
-
-
-    // ICE
-
-    peerConnection.onicecandidate =
-        async event => {
-
-            if(event.candidate){
-
-                await push(
-
-                    ref(
-                        database,
-                        "calls/" +
-                        roomId +
-                        "/candidates"
-                    ),
-
-                    event.candidate.toJSON()
-                );
-            }
-        };
-}
-
-
-// =====================================
-// START CALL
-// =====================================
-
-async function startCall(){
-
-    const callRef =
-        ref(database, "calls/" + roomId);
-
-    const snapshot =
-        await get(callRef);
-
-
-    // CREATE OFFER
-
-    if(!snapshot.exists()){
-
-        const offer =
-            await peerConnection.createOffer();
-
-        await peerConnection.setLocalDescription(
-            offer
-        );
-
-        await set(callRef, {
-
-            offer: {
-
-                type: offer.type,
-                sdp: offer.sdp
-            }
-
-        });
-
-
-        // WAIT ANSWER
-
-        onValue(callRef, async snapshot => {
-
-            const data =
-                snapshot.val();
-
-            if(
-                data?.answer &&
-                !peerConnection.currentRemoteDescription
-            ){
-
-                const answer =
-                    new RTCSessionDescription(
-                        data.answer
-                    );
-
-                await peerConnection
-                    .setRemoteDescription(answer);
-            }
-
-        });
-
-    }
-
-
-    // JOIN ROOM
-
-    else{
-
-        const data =
-            snapshot.val();
-
-        await peerConnection.setRemoteDescription(
-
-            new RTCSessionDescription(
-                data.offer
-            )
-        );
-
-        const answer =
-            await peerConnection.createAnswer();
-
-        await peerConnection.setLocalDescription(
-            answer
-        );
-
-        await set(callRef, {
-
-            offer:data.offer,
-
-            answer:{
-
-                type:answer.type,
-                sdp:answer.sdp
-            }
-
-        });
-    }
-
-
-    // ICE LISTENER
-
-    onValue(
-
-        ref(
-            database,
-            "calls/" +
-            roomId +
-            "/candidates"
-        ),
-
-        snapshot => {
-
-            snapshot.forEach(child => {
-
-                const candidate =
-                    new RTCIceCandidate(
-                        child.val()
-                    );
-
-                peerConnection.addIceCandidate(
-                    candidate
-                );
-
-            });
-
-        }
-    );
-}
-
-
-// =====================================
-// START
-// =====================================
-
-startVideo();
-
-
-// =====================================
-// MIC
-// =====================================
-
-let micEnabled = true;
-
-document.getElementById(
-    "micBtn"
-).onclick = () => {
-
-    micEnabled = !micEnabled;
-
-    localStream
-        .getAudioTracks()[0]
-        .enabled = micEnabled;
-};
-
-
-// =====================================
-// CAMERA
-// =====================================
-
-let cameraEnabled = true;
-
-document.getElementById(
-    "cameraBtn"
-).onclick = () => {
-
-    cameraEnabled = !cameraEnabled;
-
-    localStream
-        .getVideoTracks()[0]
-        .enabled = cameraEnabled;
-};
-
-// =====================================
-// CHAT SYSTEM
-// =====================================
-
-const messageInput =
-    document.getElementById("messageInput");
-
-const sendBtn =
-    document.getElementById("sendBtn");
-
-const messages =
-    document.getElementById("messages");
-
-
-// GET USER NAME
-
-let currentUserName =
-    localStorage.getItem("userName") || "User";
-
-
-// SEND MESSAGE
-
-sendBtn.onclick = async () => {
-
-    const text =
-        messageInput.value;
-
-    if(text === "") return;
-
-    await push(
-
-        ref(
-            database,
-            "rooms/" +
-            roomId +
-            "/messages"
-        ),
-
-        {
-            text:text,
-            sender:currentUserName,
-            time:Date.now()
-        }
-    );
-
-    messageInput.value = "";
-};
-
-
-// RECEIVE MESSAGES
-
-onValue(
-
-    ref(
-        database,
-        "rooms/" +
-        roomId +
-        "/messages"
-    ),
-
-    snapshot => {
-
-        messages.innerHTML = "";
-
-        snapshot.forEach(child => {
-
-            const data =
-                child.val();
-
-            const div =
-                document.createElement("div");
-
-            div.classList.add("message");
-
-            if(data.sender === currentUserName){
-
-                div.classList.add("myMessage");
-            }
-
-            div.innerHTML =
-                "<b>" +
-                data.sender +
-                "</b>: " +
-                data.text;
-
-            messages.appendChild(div);
-        });
-
-    }
-);
-
-</script>
-
 </body>
+
 </html>

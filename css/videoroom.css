@@ -1,0 +1,1169 @@
+/* =========================
+   GLOBAL
+========================= */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:"Inter",sans-serif;
+}
+
+body{
+
+    background:
+    radial-gradient(circle at top,#111827 0%,#050816 65%);
+
+    color:white;
+
+    height:100vh;
+
+    overflow:hidden;
+}
+
+
+/* =========================
+   APP
+========================= */
+
+.app{
+
+    height:100vh;
+
+    display:flex;
+
+    flex-direction:column;
+
+    padding:14px;
+
+    gap:14px;
+}
+
+
+/* =========================
+   TOP BAR
+========================= */
+
+.topBar{
+
+    height:92px;
+
+    padding:0 20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:
+    rgba(10,15,30,0.78);
+
+    border:
+    1px solid rgba(255,255,255,0.05);
+
+    border-radius:30px;
+
+    backdrop-filter:blur(24px);
+
+    box-shadow:
+    0 10px 40px rgba(0,0,0,0.45);
+
+    overflow:hidden;
+
+    position:relative;
+}
+
+
+/* GLOW */
+
+.topBar::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:420px;
+
+    height:420px;
+
+    background:
+    radial-gradient(
+        rgba(139,92,246,0.18),
+        transparent 70%
+    );
+
+    left:-100px;
+
+    top:-240px;
+}
+
+
+/* =========================
+   LEFT TOP
+========================= */
+
+.topLeft{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+
+    z-index:2;
+}
+
+.logo{
+
+    font-size:62px;
+
+    font-weight:900;
+
+    letter-spacing:-3px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #8B5CF6,
+        #C084FC
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+}
+
+.roomTitle{
+
+    font-size:28px;
+
+    font-weight:700;
+
+    opacity:0.96;
+}
+
+
+/* =========================
+   RIGHT TOP AREA
+========================= */
+
+.topRight{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+    z-index:2;
+}
+
+
+/* =========================
+   FEATURE BUTTONS
+========================= */
+
+.featureButtons{
+
+    display:flex;
+
+    gap:10px;
+}
+
+
+/* =========================
+   FEATURE CARD
+========================= */
+
+.featureCard{
+
+    width:68px;
+
+    height:68px;
+
+    border-radius:22px;
+
+    background:
+    rgba(20,27,52,0.72);
+
+    border:
+    1px solid rgba(255,255,255,0.06);
+
+    backdrop-filter:blur(16px);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    transition:0.35s;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,0.25);
+}
+
+.featureCard:hover{
+
+    transform:
+    translateY(-4px)
+    scale(1.06);
+
+    background:
+    linear-gradient(
+        180deg,
+        rgba(139,92,246,0.26),
+        rgba(59,130,246,0.14)
+    );
+
+    border-color:
+    rgba(139,92,246,0.42);
+
+    box-shadow:
+    0 0 28px rgba(139,92,246,0.22);
+}
+
+.featureIcon{
+
+    font-size:28px;
+}
+
+.featureText{
+
+    display:none;
+}
+
+
+/* =========================
+   LEAVE BUTTON
+========================= */
+
+.leaveBtn{
+
+    width:150px;
+
+    height:54px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        135deg,
+        #FF4D67,
+        #FF6B81
+    );
+
+    color:white;
+
+    font-size:18px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.35s;
+
+    box-shadow:
+    0 10px 24px rgba(255,77,103,0.25);
+}
+
+.leaveBtn:hover{
+
+    transform:
+    translateY(-3px)
+    scale(1.03);
+
+    box-shadow:
+    0 0 30px rgba(255,77,103,0.4);
+}
+
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.mainLayout{
+
+    flex:1;
+
+    display:grid;
+
+    grid-template-columns:
+    1fr 330px;
+
+    gap:16px;
+}
+
+
+/* =========================
+   LEFT SECTION
+========================= */
+
+.activitySection{
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+
+/* =========================
+   ACTIVITY WINDOW
+========================= */
+
+.activityWindow{
+
+    flex:1;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:34px;
+
+    background:
+    linear-gradient(
+        145deg,
+        rgba(17,23,42,0.96),
+        rgba(8,12,24,0.98)
+    );
+
+    border:
+    1px solid rgba(255,255,255,0.06);
+
+    backdrop-filter:blur(22px);
+
+    box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 20px 60px rgba(0,0,0,0.45);
+}
+
+
+/* GLOW EFFECTS */
+
+.activityWindow::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:760px;
+
+    height:760px;
+
+    background:
+    radial-gradient(
+        rgba(139,92,246,0.13),
+        transparent 70%
+    );
+
+    top:-360px;
+
+    left:-260px;
+}
+
+.activityWindow::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:500px;
+
+    height:500px;
+
+    background:
+    radial-gradient(
+        rgba(59,130,246,0.10),
+        transparent 70%
+    );
+
+    bottom:-240px;
+
+    right:-160px;
+}
+
+
+/* =========================
+   CENTER CONTENT
+========================= */
+
+.activityCenter{
+
+    position:absolute;
+
+    top:50%;
+
+    left:50%;
+
+    transform:translate(-50%,-52%);
+
+    text-align:center;
+
+    z-index:2;
+}
+
+.activityIcon{
+
+    font-size:78px;
+
+    margin-bottom:16px;
+
+    filter:
+    drop-shadow(
+        0 0 24px rgba(139,92,246,0.42)
+    );
+}
+
+.activityCenter h2{
+
+    font-size:60px;
+
+    font-weight:850;
+
+    line-height:1.04;
+
+    margin-bottom:14px;
+}
+
+.activityCenter p{
+
+    font-size:21px;
+
+    color:#B6C2FF;
+
+    line-height:1.6;
+}
+
+
+/* =========================
+   VIDEO SIDEBAR
+========================= */
+
+.videoSidebar{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:16px;
+}
+
+
+/* =========================
+   VIDEO CARD
+========================= */
+
+.videoCard{
+
+    flex:1;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:28px;
+
+    background:
+    linear-gradient(
+        145deg,
+        #121B34,
+        #0B1020
+    );
+
+    border:
+    1px solid rgba(255,255,255,0.05);
+
+    box-shadow:
+    0 15px 40px rgba(0,0,0,0.45);
+
+    transition:0.35s;
+}
+
+.videoCard:hover{
+
+    transform:scale(1.015);
+
+    border-color:
+    rgba(139,92,246,0.35);
+
+    box-shadow:
+    0 0 34px rgba(139,92,246,0.18);
+}
+
+
+/* VIDEO */
+
+.videoCard video{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:cover;
+
+    background:black;
+}
+
+
+/* VIDEO LABEL */
+
+.videoLabel{
+
+    position:absolute;
+
+    left:16px;
+
+    bottom:16px;
+
+    padding:10px 16px;
+
+    border-radius:14px;
+
+    background:
+    rgba(0,0,0,0.42);
+
+    backdrop-filter:blur(14px);
+
+    font-size:18px;
+
+    font-weight:700;
+}
+
+
+/* =========================
+   BOTTOM BAR
+========================= */
+
+.bottomBar{
+
+    height:94px;
+
+    padding:0 24px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:
+    rgba(10,15,30,0.78);
+
+    border:
+    1px solid rgba(255,255,255,0.05);
+
+    border-radius:30px;
+
+    backdrop-filter:blur(22px);
+
+    box-shadow:
+    0 10px 35px rgba(0,0,0,0.45);
+}
+
+.bottomLeft,
+.bottomCenter,
+.bottomRight{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+}
+
+
+/* =========================
+   SMALL BUTTONS
+========================= */
+
+.smallBtn{
+
+    width:64px;
+
+    height:64px;
+
+    border:none;
+
+    border-radius:22px;
+
+    background:
+    rgba(20,27,52,0.88);
+
+    color:white;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.smallBtn:hover{
+
+    transform:
+    translateY(-3px);
+
+    background:#1A2445;
+
+    box-shadow:
+    0 0 22px rgba(139,92,246,0.18);
+}
+
+
+/* =========================
+   CONTROL BUTTONS
+========================= */
+
+.controlBtn{
+
+    width:74px;
+
+    height:74px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:
+    rgba(20,27,52,0.92);
+
+    color:white;
+
+    font-size:28px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.controlBtn:hover{
+
+    transform:
+    scale(1.08);
+
+    background:#1B2444;
+
+    box-shadow:
+    0 0 28px rgba(139,92,246,0.22);
+}
+
+
+/* =========================
+   END CALL BUTTON
+========================= */
+
+.endCallBtn{
+
+    width:84px;
+
+    height:84px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:
+    linear-gradient(
+        135deg,
+        #FF4D67,
+        #FF6B81
+    );
+
+    color:white;
+
+    font-size:30px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    box-shadow:
+    0 10px 28px rgba(255,77,103,0.30);
+}
+
+.endCallBtn:hover{
+
+    transform:
+    scale(1.08);
+
+    box-shadow:
+    0 0 38px rgba(255,77,103,0.42);
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:1200px){
+
+    .mainLayout{
+
+        grid-template-columns:1fr;
+    }
+
+    .videoSidebar{
+
+        flex-direction:row;
+
+        height:220px;
+    }
+}
+
+
+@media(max-width:900px){
+
+    body{
+
+        overflow:auto;
+    }
+
+    .app{
+
+        padding:10px;
+    }
+
+    .topBar{
+
+        padding:0 14px;
+
+        height:78px;
+    }
+
+    .logo{
+
+        font-size:40px;
+    }
+
+    .roomTitle{
+
+        font-size:18px;
+    }
+
+    .topRight{
+
+        gap:8px;
+    }
+
+    .featureCard{
+
+        width:56px;
+
+        height:56px;
+    }
+
+    .featureIcon{
+
+        font-size:22px;
+    }
+
+    .leaveBtn{
+
+        width:110px;
+
+        height:44px;
+
+        font-size:14px;
+    }
+
+    .mainLayout{
+
+        display:flex;
+
+        flex-direction:column;
+    }
+
+    .activityWindow{
+
+        min-height:420px;
+    }
+
+    .activityCenter h2{
+
+        font-size:40px;
+    }
+
+    .activityCenter p{
+
+        font-size:16px;
+    }
+
+    .bottomBar{
+
+        padding:0 10px;
+
+        height:84px;
+    }
+
+    .controlBtn{
+
+        width:58px;
+
+        height:58px;
+
+        font-size:20px;
+    }
+
+    .smallBtn{
+
+        width:48px;
+
+        height:48px;
+
+        font-size:18px;
+    }
+
+    .endCallBtn{
+
+        width:66px;
+
+        height:66px;
+
+        font-size:22px;
+    }
+}
+
+/* =========================
+   WATCH PARTY UI
+========================= */
+
+.watchPartyUI{
+
+    width:100%;
+    height:100%;
+
+    padding:22px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+    position:relative;
+
+    z-index:5;
+}
+
+.playlistHeader h2{
+
+    font-size:34px;
+
+    margin-bottom:6px;
+}
+
+.playlistHeader p{
+
+    color:#9CA3AF;
+
+    font-size:16px;
+}
+
+.playlistButtons{
+
+    display:flex;
+
+    gap:14px;
+
+    flex-wrap:wrap;
+}
+
+.playlistBtn{
+
+    padding:12px 22px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#141B34;
+
+    color:white;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.playlistBtn:hover{
+
+    background:#8B5CF6;
+}
+
+.playerArea{
+
+    flex:1;
+
+    overflow:hidden;
+
+    border-radius:24px;
+
+    border:
+    1px solid rgba(255,255,255,0.06);
+
+    background:black;
+}
+
+.playerArea iframe{
+
+    width:100%;
+
+    height:100%;
+
+    border:none;
+}
+
+
+
+/* =========================
+   SCREEN SHARE
+========================= */
+
+.screenShareWrapper{
+
+    width:100%;
+
+    height:100%;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:28px;
+
+    background:black;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+}
+
+#screenVideo{
+
+    width:100%;
+
+    height:100%;
+
+    object-fit:contain;
+
+    background:black;
+}
+
+.screenShareLabel{
+
+    position:absolute;
+
+    top:18px;
+
+    left:18px;
+
+    padding:10px 18px;
+
+    border-radius:14px;
+
+    background:
+    rgba(0,0,0,0.45);
+
+    backdrop-filter:blur(12px);
+
+    font-size:15px;
+
+    font-weight:700;
+
+    z-index:5;
+}
+
+
+
+/* =========================
+   WHITEBOARD
+========================= */
+
+.whiteboardContainer{
+
+    width:100%;
+
+    height:100%;
+
+    position:relative;
+
+    overflow:hidden;
+
+    border-radius:28px;
+
+    background:white;
+}
+
+#whiteboard{
+
+    width:100%;
+
+    height:100%;
+
+    cursor:crosshair;
+}
+
+#clearBoard{
+
+    position:absolute;
+
+    top:18px;
+
+    right:18px;
+
+    width:140px;
+
+    height:50px;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:#FF4D67;
+
+    color:white;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    z-index:10;
+}
+
+
+
+/* =========================
+   GAMES UI
+========================= */
+
+.gamesUI{
+
+    width:100%;
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:24px;
+
+    z-index:5;
+
+    position:relative;
+}
+
+.gamesUI h1{
+
+    font-size:48px;
+}
+
+.gamesGrid{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:20px;
+}
+
+.gameCard{
+
+    width:200px;
+
+    height:100px;
+
+    border-radius:22px;
+
+    background:
+    rgba(20,27,52,0.9);
+
+    border:
+    1px solid rgba(255,255,255,0.06);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:24px;
+
+    font-weight:700;
+
+    transition:0.3s;
+
+    cursor:pointer;
+}
+
+.gameCard:hover{
+
+    transform:
+    translateY(-6px);
+
+    background:#1B2444;
+
+    box-shadow:
+    0 0 28px rgba(139,92,246,0.24);
+}
+
+
+
+/* =========================
+   FLOAT EMOJI
+========================= */
+
+@keyframes floatUp{
+
+    0%{
+
+        transform:
+        translateY(0)
+        scale(1);
+
+        opacity:1;
+    }
+
+    100%{
+
+        transform:
+        translateY(-260px)
+        scale(1.6);
+
+        opacity:0;
+    }
+}
+
+/* YOUR CAMERA */
+
+#localVideo{
+
+    transform:none;
+}
+
+
+/* FRIEND CAMERA */
+
+#remoteVideo{
+
+    transform:none;
+}
