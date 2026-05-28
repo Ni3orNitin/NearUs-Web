@@ -372,17 +372,32 @@ featureCards.forEach(card => {
 
             <div class="watchPartyUI">
 
-                <h2>
-                    🎵 Shared Playlist
-                </h2>
+                <div class="playlistHeader">
 
-                <iframe
-                width="100%"
-                height="100%"
-                src="https://www.youtube.com/embed/videoseries?list=PLIlng4MI3pW88NAuEBtQlGT4WEAae5NPA"
-                frameborder="0"
-                allowfullscreen>
-                </iframe>
+                    <h2>
+                        🎵 Shared Playlist
+                    </h2>
+
+                    <p>
+                        Enjoy synced music together
+                    </p>
+
+                </div>
+
+                <div class="playerArea">
+
+                    <iframe
+width="100%"
+height="100%"
+src="https://www.youtube.com/embed/videoseries?list=PLIlng4MI3pW88NAuEBtQlGT4WEAae5NPA"
+title="YouTube video player"
+frameborder="0"
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+referrerpolicy="strict-origin-when-cross-origin"
+allowfullscreen>
+</iframe>
+
+                </div>
 
             </div>
 
@@ -413,11 +428,15 @@ featureCards.forEach(card => {
 
                 activityWindow.innerHTML = `
 
-                <video
-                id="screenVideo"
-                autoplay
-                playsinline>
-                </video>
+                <div class="screenShareWrapper">
+
+                    <video
+                    id="screenVideo"
+                    autoplay
+                    playsinline>
+                    </video>
+
+                </div>
 
                 `;
 
@@ -445,29 +464,171 @@ featureCards.forEach(card => {
         }
 
 
-
         /* =========================================
-           GAMES
-        ========================================= */
+   GAMES
+========================================= */
 
-        else if(title === "Games"){
+else if(title === "Games"){
 
-            activityWindow.innerHTML = `
+    activityWindow.innerHTML = `
 
-            <div class="gamesUI">
+    <div class="gamesUI">
 
-                <h1>
-                    🎮 Game Zone
-                </h1>
+        <h1 class="gamesTitle">
+            🎮 Game Zone
+        </h1>
 
-                <p>
-                    Multiplayer Games Coming Soon
-                </p>
+        <div class="gamesGrid">
+
+            <!-- TIC TAC TOE -->
+
+            <div class="gameCard">
+
+                <div class="gameImage ticGame">
+                    ❌
+                </div>
+
+                <div class="gameContent">
+
+                    <h2>
+                        Tic Tac Toe
+                    </h2>
+
+                    <p>
+                        Play multiplayer with friends
+                    </p>
+
+                    <button
+                    class="playBtn"
+                    id="startTicTacToe">
+
+                        Play Now
+
+                    </button>
+
+                </div>
 
             </div>
 
-            `;
-        }
+
+
+            <!-- UNO -->
+
+            <div class="gameCard">
+
+                <div class="gameImage unoGame">
+                    🃏
+                </div>
+
+                <div class="gameContent">
+
+                    <h2>
+                        UNO Party
+                    </h2>
+
+                    <p>
+                        Multiplayer UNO with friends
+                    </p>
+
+                    <button
+                    class="playBtn">
+
+                        Coming Soon
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- SNAKE -->
+
+            <div class="gameCard">
+
+                <div class="gameImage snakeGame">
+                    🐍
+                </div>
+
+                <div class="gameContent">
+
+                    <h2>
+                        Snake Battle
+                    </h2>
+
+                    <p>
+                        Real-time snake challenge
+                    </p>
+
+                    <button
+                    class="playBtn">
+
+                        Coming Soon
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- QUIZ -->
+
+            <div class="gameCard">
+
+                <div class="gameImage quizGame">
+                    🧠
+                </div>
+
+                <div class="gameContent">
+
+                    <h2>
+                        Quiz Arena
+                    </h2>
+
+                    <p>
+                        Live multiplayer quiz battles
+                    </p>
+
+                    <button
+                    class="playBtn">
+
+                        Coming Soon
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
+
+
+
+    /* START TIC TAC TOE */
+
+    document
+    .getElementById("startTicTacToe")
+    .addEventListener("click", () => {
+
+        activityWindow.innerHTML = `
+
+        <iframe
+        src="games/tictactoe.html"
+        class="gameFrame">
+        </iframe>
+
+        `;
+
+    });
+
+}
 
 
 
@@ -481,11 +642,11 @@ featureCards.forEach(card => {
 
             <div class="whiteboardContainer">
 
-                <canvas id="board"></canvas>
+                <canvas id="whiteboard"></canvas>
 
-                <button id="clearBtn">
+                <button id="clearBoard">
 
-                    Clear
+                    Clear Board
 
                 </button>
 
@@ -496,7 +657,9 @@ featureCards.forEach(card => {
 
 
             const canvas =
-            document.getElementById("board");
+            document.getElementById(
+                "whiteboard"
+            );
 
 
 
@@ -593,7 +756,7 @@ featureCards.forEach(card => {
 
 
             document
-            .getElementById("clearBtn")
+            .getElementById("clearBoard")
             .onclick = () => {
 
                 ctx.clearRect(
@@ -763,6 +926,8 @@ document
 
 });
 
+
+
 /* =========================
    REMOTE USER CONNECT
 ========================= */
@@ -779,8 +944,6 @@ document.getElementById(
 
 
 
-/* WHEN USER JOINS */
-
 function showRemoteUser(name){
 
     remoteVideoCard.style.display =
@@ -791,8 +954,6 @@ function showRemoteUser(name){
 }
 
 
-
-/* WHEN USER LEAVES */
 
 function hideRemoteUser(){
 

@@ -75,7 +75,9 @@ body{
 }
 
 
-/* GLOW */
+/* =========================
+   TOP BAR GLOW
+========================= */
 
 .topBar::before{
 
@@ -145,99 +147,6 @@ body{
 
 
 /* =========================
-   RIGHT TOP AREA
-========================= */
-
-.topRight{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:14px;
-
-    z-index:2;
-}
-
-
-/* =========================
-   FEATURE BUTTONS
-========================= */
-
-.featureButtons{
-
-    display:flex;
-
-    gap:10px;
-}
-
-
-/* =========================
-   FEATURE CARD
-========================= */
-
-.featureCard{
-
-    width:68px;
-
-    height:68px;
-
-    border-radius:22px;
-
-    background:
-    rgba(20,27,52,0.72);
-
-    border:
-    1px solid rgba(255,255,255,0.06);
-
-    backdrop-filter:blur(16px);
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    cursor:pointer;
-
-    transition:0.35s;
-
-    box-shadow:
-    0 8px 20px rgba(0,0,0,0.25);
-}
-
-.featureCard:hover{
-
-    transform:
-    translateY(-4px)
-    scale(1.06);
-
-    background:
-    linear-gradient(
-        180deg,
-        rgba(139,92,246,0.26),
-        rgba(59,130,246,0.14)
-    );
-
-    border-color:
-    rgba(139,92,246,0.42);
-
-    box-shadow:
-    0 0 28px rgba(139,92,246,0.22);
-}
-
-.featureIcon{
-
-    font-size:28px;
-}
-
-.featureText{
-
-    display:none;
-}
-
-
-/* =========================
    LEAVE BUTTON
 ========================= */
 
@@ -268,8 +177,7 @@ body{
 
     transition:0.35s;
 
-    box-shadow:
-    0 10px 24px rgba(255,77,103,0.25);
+    z-index:2;
 }
 
 .leaveBtn:hover{
@@ -277,9 +185,6 @@ body{
     transform:
     translateY(-3px)
     scale(1.03);
-
-    box-shadow:
-    0 0 30px rgba(255,77,103,0.4);
 }
 
 
@@ -294,14 +199,16 @@ body{
     display:grid;
 
     grid-template-columns:
-    1fr 330px;
+    1fr 300px;
 
     gap:16px;
+
+    min-height:0;
 }
 
 
 /* =========================
-   LEFT SECTION
+   ACTIVITY SECTION
 ========================= */
 
 .activitySection{
@@ -309,6 +216,8 @@ body{
     display:flex;
 
     flex-direction:column;
+
+    min-height:0;
 }
 
 
@@ -344,51 +253,6 @@ body{
 }
 
 
-/* GLOW EFFECTS */
-
-.activityWindow::before{
-
-    content:"";
-
-    position:absolute;
-
-    width:760px;
-
-    height:760px;
-
-    background:
-    radial-gradient(
-        rgba(139,92,246,0.13),
-        transparent 70%
-    );
-
-    top:-360px;
-
-    left:-260px;
-}
-
-.activityWindow::after{
-
-    content:"";
-
-    position:absolute;
-
-    width:500px;
-
-    height:500px;
-
-    background:
-    radial-gradient(
-        rgba(59,130,246,0.10),
-        transparent 70%
-    );
-
-    bottom:-240px;
-
-    right:-160px;
-}
-
-
 /* =========================
    CENTER CONTENT
 ========================= */
@@ -401,7 +265,7 @@ body{
 
     left:50%;
 
-    transform:translate(-50%,-52%);
+    transform:translate(-50%,-50%);
 
     text-align:center;
 
@@ -413,11 +277,6 @@ body{
     font-size:78px;
 
     margin-bottom:16px;
-
-    filter:
-    drop-shadow(
-        0 0 24px rgba(139,92,246,0.42)
-    );
 }
 
 .activityCenter h2{
@@ -425,8 +284,6 @@ body{
     font-size:60px;
 
     font-weight:850;
-
-    line-height:1.04;
 
     margin-bottom:14px;
 }
@@ -436,8 +293,6 @@ body{
     font-size:21px;
 
     color:#B6C2FF;
-
-    line-height:1.6;
 }
 
 
@@ -452,6 +307,8 @@ body{
     flex-direction:column;
 
     gap:16px;
+
+    min-height:0;
 }
 
 
@@ -478,26 +335,7 @@ body{
 
     border:
     1px solid rgba(255,255,255,0.05);
-
-    box-shadow:
-    0 15px 40px rgba(0,0,0,0.45);
-
-    transition:0.35s;
 }
-
-.videoCard:hover{
-
-    transform:scale(1.015);
-
-    border-color:
-    rgba(139,92,246,0.35);
-
-    box-shadow:
-    0 0 34px rgba(139,92,246,0.18);
-}
-
-
-/* VIDEO */
 
 .videoCard video{
 
@@ -509,9 +347,6 @@ body{
 
     background:black;
 }
-
-
-/* VIDEO LABEL */
 
 .videoLabel{
 
@@ -527,8 +362,6 @@ body{
 
     background:
     rgba(0,0,0,0.42);
-
-    backdrop-filter:blur(14px);
 
     font-size:18px;
 
@@ -559,16 +392,71 @@ body{
     1px solid rgba(255,255,255,0.05);
 
     border-radius:30px;
-
-    backdrop-filter:blur(22px);
-
-    box-shadow:
-    0 10px 35px rgba(0,0,0,0.45);
 }
 
-.bottomLeft,
-.bottomCenter,
-.bottomRight{
+
+/* =========================
+   FEATURE BUTTONS
+========================= */
+
+.featureButtons{
+
+    display:flex;
+
+    gap:12px;
+}
+
+
+/* =========================
+   FEATURE CARD
+========================= */
+
+.featureCard{
+
+    width:64px;
+
+    height:64px;
+
+    border-radius:20px;
+
+    background:
+    rgba(20,27,52,0.88);
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.featureCard:hover{
+
+    transform:
+    translateY(-3px);
+
+    background:#1A2445;
+}
+
+.featureIcon{
+
+    font-size:24px;
+}
+
+.featureText{
+
+    display:none;
+}
+
+
+/* =========================
+   CONTROLS
+========================= */
+
+.bottomCenter{
 
     display:flex;
 
@@ -576,49 +464,6 @@ body{
 
     gap:14px;
 }
-
-
-/* =========================
-   SMALL BUTTONS
-========================= */
-
-.smallBtn{
-
-    width:64px;
-
-    height:64px;
-
-    border:none;
-
-    border-radius:22px;
-
-    background:
-    rgba(20,27,52,0.88);
-
-    color:white;
-
-    font-size:24px;
-
-    cursor:pointer;
-
-    transition:0.3s;
-}
-
-.smallBtn:hover{
-
-    transform:
-    translateY(-3px);
-
-    background:#1A2445;
-
-    box-shadow:
-    0 0 22px rgba(139,92,246,0.18);
-}
-
-
-/* =========================
-   CONTROL BUTTONS
-========================= */
 
 .controlBtn{
 
@@ -638,25 +483,7 @@ body{
     font-size:28px;
 
     cursor:pointer;
-
-    transition:0.3s;
 }
-
-.controlBtn:hover{
-
-    transform:
-    scale(1.08);
-
-    background:#1B2444;
-
-    box-shadow:
-    0 0 28px rgba(139,92,246,0.22);
-}
-
-
-/* =========================
-   END CALL BUTTON
-========================= */
 
 .endCallBtn{
 
@@ -680,236 +507,49 @@ body{
     font-size:30px;
 
     cursor:pointer;
-
-    transition:0.3s;
-
-    box-shadow:
-    0 10px 28px rgba(255,77,103,0.30);
-}
-
-.endCallBtn:hover{
-
-    transform:
-    scale(1.08);
-
-    box-shadow:
-    0 0 38px rgba(255,77,103,0.42);
 }
 
 
 /* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:1200px){
-
-    .mainLayout{
-
-        grid-template-columns:1fr;
-    }
-
-    .videoSidebar{
-
-        flex-direction:row;
-
-        height:220px;
-    }
-}
-
-
-@media(max-width:900px){
-
-    body{
-
-        overflow:auto;
-    }
-
-    .app{
-
-        padding:10px;
-    }
-
-    .topBar{
-
-        padding:0 14px;
-
-        height:78px;
-    }
-
-    .logo{
-
-        font-size:40px;
-    }
-
-    .roomTitle{
-
-        font-size:18px;
-    }
-
-    .topRight{
-
-        gap:8px;
-    }
-
-    .featureCard{
-
-        width:56px;
-
-        height:56px;
-    }
-
-    .featureIcon{
-
-        font-size:22px;
-    }
-
-    .leaveBtn{
-
-        width:110px;
-
-        height:44px;
-
-        font-size:14px;
-    }
-
-    .mainLayout{
-
-        display:flex;
-
-        flex-direction:column;
-    }
-
-    .activityWindow{
-
-        min-height:420px;
-    }
-
-    .activityCenter h2{
-
-        font-size:40px;
-    }
-
-    .activityCenter p{
-
-        font-size:16px;
-    }
-
-    .bottomBar{
-
-        padding:0 10px;
-
-        height:84px;
-    }
-
-    .controlBtn{
-
-        width:58px;
-
-        height:58px;
-
-        font-size:20px;
-    }
-
-    .smallBtn{
-
-        width:48px;
-
-        height:48px;
-
-        font-size:18px;
-    }
-
-    .endCallBtn{
-
-        width:66px;
-
-        height:66px;
-
-        font-size:22px;
-    }
-}
-
-/* =========================
-   WATCH PARTY UI
+   WATCH PARTY
 ========================= */
 
 .watchPartyUI{
 
     width:100%;
+
     height:100%;
 
-    padding:22px;
+    padding:20px;
 
     display:flex;
 
     flex-direction:column;
 
-    gap:18px;
-
-    position:relative;
-
-    z-index:5;
+    gap:20px;
 }
 
 .playlistHeader h2{
 
     font-size:34px;
 
-    margin-bottom:6px;
+    margin-bottom:8px;
 }
 
 .playlistHeader p{
 
     color:#9CA3AF;
-
-    font-size:16px;
-}
-
-.playlistButtons{
-
-    display:flex;
-
-    gap:14px;
-
-    flex-wrap:wrap;
-}
-
-.playlistBtn{
-
-    padding:12px 22px;
-
-    border:none;
-
-    border-radius:14px;
-
-    background:#141B34;
-
-    color:white;
-
-    font-size:15px;
-
-    font-weight:700;
-
-    cursor:pointer;
-
-    transition:0.3s;
-}
-
-.playlistBtn:hover{
-
-    background:#8B5CF6;
 }
 
 .playerArea{
 
     flex:1;
 
+    width:100%;
+
     overflow:hidden;
 
     border-radius:24px;
-
-    border:
-    1px solid rgba(255,255,255,0.06);
 
     background:black;
 }
@@ -924,7 +564,6 @@ body{
 }
 
 
-
 /* =========================
    SCREEN SHARE
 ========================= */
@@ -935,19 +574,19 @@ body{
 
     height:100%;
 
-    position:relative;
-
-    overflow:hidden;
-
-    border-radius:28px;
-
-    background:black;
-
     display:flex;
 
     justify-content:center;
 
     align-items:center;
+
+    background:black;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    position:relative;
 }
 
 #screenVideo{
@@ -957,8 +596,6 @@ body{
     height:100%;
 
     object-fit:contain;
-
-    background:black;
 }
 
 .screenShareLabel{
@@ -969,22 +606,17 @@ body{
 
     left:18px;
 
-    padding:10px 18px;
+    padding:10px 16px;
 
     border-radius:14px;
 
     background:
     rgba(0,0,0,0.45);
 
-    backdrop-filter:blur(12px);
-
     font-size:15px;
 
     font-weight:700;
-
-    z-index:5;
 }
-
 
 
 /* =========================
@@ -999,11 +631,11 @@ body{
 
     position:relative;
 
-    overflow:hidden;
+    background:white;
 
     border-radius:28px;
 
-    background:white;
+    overflow:hidden;
 }
 
 #whiteboard{
@@ -1012,7 +644,7 @@ body{
 
     height:100%;
 
-    cursor:crosshair;
+    display:block;
 }
 
 #clearBoard{
@@ -1045,12 +677,187 @@ body{
 }
 
 
-
 /* =========================
-   GAMES UI
+   GAME ZONE
 ========================= */
 
 .gamesUI{
+
+    width:100%;
+
+    height:100%;
+
+    padding:30px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    gap:30px;
+
+    overflow:auto;
+}
+
+.gamesTitle{
+
+    font-size:60px;
+
+    font-weight:800;
+}
+
+
+/* =========================
+   GAMES GRID
+========================= */
+
+.gamesGrid{
+
+    width:100%;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:28px;
+
+    place-items:center;
+}
+
+
+/* =========================
+   GAME CARD
+========================= */
+
+.gameCard{
+
+    width:100%;
+
+    max-width:320px;
+
+    background:
+    linear-gradient(
+        145deg,
+        #141B34,
+        #0B1020
+    );
+
+    border-radius:30px;
+
+    overflow:hidden;
+
+    border:
+    1px solid rgba(255,255,255,0.08);
+
+    box-shadow:
+    0 20px 50px rgba(0,0,0,0.35);
+
+    transition:0.35s;
+}
+
+.gameCard:hover{
+
+    transform:
+    translateY(-6px);
+
+    border-color:
+    rgba(139,92,246,0.45);
+}
+
+
+/* =========================
+   GAME IMAGE
+========================= */
+
+.gameImage{
+
+    width:100%;
+
+    height:180px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    font-size:90px;
+}
+
+
+/* =========================
+   GAME CONTENT
+========================= */
+
+.gameContent{
+
+    padding:24px;
+}
+
+.gameContent h2{
+
+    font-size:34px;
+
+    margin-bottom:10px;
+}
+
+.gameContent p{
+
+    color:#A1A1AA;
+
+    font-size:17px;
+
+    margin-bottom:22px;
+
+    line-height:28px;
+}
+
+
+/* =========================
+   PLAY BUTTON
+========================= */
+
+.playBtn{
+
+    width:100%;
+
+    height:58px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        135deg,
+        #8B5CF6,
+        #7C3AED
+    );
+
+    color:white;
+
+    font-size:17px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.playBtn:hover{
+
+    transform:scale(1.02);
+}
+
+
+/* =========================
+   TIC TAC TOE
+========================= */
+
+.ticTacToeUI{
 
     width:100%;
 
@@ -1066,39 +873,51 @@ body{
 
     gap:24px;
 
-    z-index:5;
-
-    position:relative;
+    padding:30px;
 }
 
-.gamesUI h1{
+.ticTacToeUI h1{
 
-    font-size:48px;
+    font-size:54px;
+
+    font-weight:800;
 }
 
-.gamesGrid{
+.gameTurn{
+
+    font-size:22px;
+
+    color:#C4B5FD;
+}
+
+
+/* =========================
+   TIC BOARD
+========================= */
+
+.ticBoard{
 
     display:grid;
 
     grid-template-columns:
-    repeat(2,1fr);
+    repeat(3,120px);
 
-    gap:20px;
+    gap:14px;
 }
 
-.gameCard{
+.cell{
 
-    width:200px;
+    width:120px;
 
-    height:100px;
+    height:120px;
 
     border-radius:22px;
 
     background:
-    rgba(20,27,52,0.9);
+    rgba(20,27,52,0.95);
 
     border:
-    1px solid rgba(255,255,255,0.06);
+    1px solid rgba(255,255,255,0.08);
 
     display:flex;
 
@@ -1106,64 +925,139 @@ body{
 
     align-items:center;
 
-    font-size:24px;
+    font-size:56px;
 
-    font-weight:700;
+    font-weight:800;
+
+    cursor:pointer;
 
     transition:0.3s;
+}
+
+.cell:hover{
+
+    transform:scale(1.04);
+
+    border-color:
+    rgba(139,92,246,0.45);
+}
+
+.xColor{
+
+    color:#60A5FA;
+}
+
+.oColor{
+
+    color:#F472B6;
+}
+
+
+/* =========================
+   RESTART BUTTON
+========================= */
+
+.restartBtn{
+
+    width:240px;
+
+    height:60px;
+
+    border:none;
+
+    border-radius:18px;
+
+    background:
+    linear-gradient(
+        135deg,
+        #8B5CF6,
+        #7C3AED
+    );
+
+    color:white;
+
+    font-size:18px;
+
+    font-weight:700;
 
     cursor:pointer;
 }
 
-.gameCard:hover{
 
-    transform:
-    translateY(-6px);
+/* =========================
+   GAME FRAME
+========================= */
 
-    background:#1B2444;
+.gameFrame{
 
-    box-shadow:
-    0 0 28px rgba(139,92,246,0.24);
+    width:100%;
+
+    height:100%;
+
+    border:none;
+
+    border-radius:28px;
 }
-
 
 
 /* =========================
-   FLOAT EMOJI
+   RESPONSIVE
 ========================= */
 
-@keyframes floatUp{
+@media(max-width:1100px){
 
-    0%{
+    .mainLayout{
 
-        transform:
-        translateY(0)
-        scale(1);
-
-        opacity:1;
+        grid-template-columns:1fr;
     }
 
-    100%{
+    .videoSidebar{
 
-        transform:
-        translateY(-260px)
-        scale(1.6);
+        flex-direction:row;
 
-        opacity:0;
+        height:220px;
     }
 }
 
-/* YOUR CAMERA */
+@media(max-width:900px){
 
-#localVideo{
+    body{
 
-    transform:none;
-}
+        overflow:auto;
+    }
 
+    .logo{
 
-/* FRIEND CAMERA */
+        font-size:42px;
+    }
 
-#remoteVideo{
+    .roomTitle{
 
-    transform:none;
+        font-size:18px;
+    }
+
+    .gamesGrid{
+
+        grid-template-columns:1fr;
+    }
+
+    .gamesTitle{
+
+        font-size:42px;
+    }
+
+    .ticBoard{
+
+        grid-template-columns:
+        repeat(3,90px);
+    }
+
+    .cell{
+
+        width:90px;
+
+        height:90px;
+
+        font-size:42px;
+    }
 }
