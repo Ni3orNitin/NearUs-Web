@@ -133,6 +133,115 @@ video{
 
 
 /* =========================
+   CHAT SECTION
+========================= */
+
+.chatSection{
+
+    width:350px;
+
+    background:#111827;
+
+    border-left:1px solid rgba(255,255,255,0.05);
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.chatHeader{
+
+    padding:20px;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    border-bottom:1px solid rgba(255,255,255,0.05);
+}
+
+.messages{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    padding:20px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+}
+
+.message{
+
+    background:#1F2937;
+
+    padding:12px 16px;
+
+    border-radius:15px;
+
+    max-width:80%;
+}
+
+.myMessage{
+
+    background:#8B5CF6;
+
+    align-self:flex-end;
+}
+
+.chatInputArea{
+
+    display:flex;
+
+    gap:10px;
+
+    padding:20px;
+
+    border-top:1px solid rgba(255,255,255,0.05);
+}
+
+.chatInputArea input{
+
+    flex:1;
+
+    height:50px;
+
+    border:none;
+
+    outline:none;
+
+    border-radius:12px;
+
+    padding:0 15px;
+
+    background:#1F2937;
+
+    color:white;
+}
+
+.chatInputArea button{
+
+    width:90px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#8B5CF6;
+
+    color:white;
+
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+
+/* =========================
    CONTROLS
 ========================= */
 
@@ -193,6 +302,12 @@ video{
 
 @media(max-width:900px){
 
+    .roomContainer{
+
+        flex-direction:column;
+        height:auto;
+    }
+
     .videoGrid{
 
         grid-template-columns:1fr;
@@ -204,14 +319,15 @@ video{
         height:300px;
     }
 
+    .chatSection{
+
+        width:100%;
+        height:400px;
+    }
+
     body{
 
         overflow:auto;
-    }
-
-    .roomContainer{
-
-        height:auto;
     }
 }
 
@@ -222,6 +338,8 @@ video{
 <body>
 
 <div class="roomContainer">
+
+    <!-- VIDEO SECTION -->
 
     <div class="videoSection">
 
@@ -281,6 +399,44 @@ video{
                 </div>
 
             </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHAT -->
+
+    <div class="chatSection">
+
+        <div class="chatHeader">
+
+            Live Chat
+
+        </div>
+
+
+        <!-- MESSAGES -->
+
+        <div class="messages"
+             id="messages">
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="chatInputArea">
+
+            <input type="text"
+                   id="messageInput"
+                   placeholder="Type message...">
+
+            <button id="sendBtn">
+
+                Send
+
+            </button>
 
         </div>
 
@@ -520,9 +676,7 @@ async function startCall(){
         await get(callRef);
 
 
-    // =========================
     // CREATE OFFER
-    // =========================
 
     if(!snapshot.exists()){
 
@@ -544,7 +698,7 @@ async function startCall(){
         });
 
 
-        // WAIT FOR ANSWER
+        // WAIT ANSWER
 
         onValue(callRef, async snapshot => {
 
@@ -563,10 +717,6 @@ async function startCall(){
 
                 await peerConnection
                     .setRemoteDescription(answer);
-
-                console.log(
-                    "Connected to Answer"
-                );
             }
 
         });
@@ -574,9 +724,7 @@ async function startCall(){
     }
 
 
-    // =========================
     // JOIN ROOM
-    // =========================
 
     else{
 
@@ -608,14 +756,10 @@ async function startCall(){
             }
 
         });
-
-        console.log("Joined Call");
     }
 
 
-    // =========================
-    // ICE CANDIDATES
-    // =========================
+    // ICE LISTENER
 
     onValue(
 
@@ -687,6 +831,86 @@ document.getElementById(
         .getVideoTracks()[0]
         .enabled = cameraEnabled;
 };
+
+
+// =====================================
+// CHAT SYSTEM
+// =====================================
+
+const messageInput =
+    document.getElementById("messageInput");
+
+const sendBtn =
+    document.getElementById("sendBtn");
+
+const messages =
+    document.getElementById("messages");
+
+
+// SEND MESSAGE
+
+sendBtn.onclick = async () => {
+
+    const text =
+        messageInput.value;
+
+    if(text === "") return;
+
+    await push(
+
+        ref(
+            database,
+            "rooms/" +
+            roomId +
+            "/messages"
+        ),
+
+        {
+            text:text,
+            sender:"User",
+            time:Date.now()
+        }
+    );
+
+    messageInput.value = "";
+};
+
+
+// RECEIVE MESSAGES
+
+onValue(
+
+    ref(
+        database,
+        "rooms/" +
+        roomId +
+        "/messages"
+    ),
+
+    snapshot => {
+
+        messages.innerHTML = "";
+
+        snapshot.forEach(child => {
+
+            const data =
+                child.val();
+
+            const div =
+                document.createElement("div");
+
+            div.classList.add("message");
+
+            div.innerHTML =
+                data.sender +
+                ": " +
+                data.text;
+
+            messages.appendChild(div);
+        });
+
+    }
+);
 
 </script>
 
