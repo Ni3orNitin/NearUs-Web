@@ -112,10 +112,30 @@ window.loginUser = async function () {
 
     try {
 
-        await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
+        const userCredential =
+            await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+        const user = userCredential.user;
+
+        // SAVE USER NAME
+
+        localStorage.setItem(
+            "userName",
+            user.email
+        );
+
+        localStorage.setItem(
+            "userEmail",
+            user.email
+        );
+
+        localStorage.setItem(
+            "userId",
+            user.uid
         );
 
         alert("Login Successful");
@@ -152,6 +172,19 @@ window.registerUser = async function () {
         document.getElementById("confirmPassword").value;
 
 
+    if(
+        name === "" ||
+        email === "" ||
+        password === "" ||
+        confirmPassword === ""
+    ){
+
+        alert("Please fill all fields");
+
+        return;
+    }
+
+
     if(password !== confirmPassword){
 
         alert("Passwords do not match");
@@ -170,6 +203,8 @@ window.registerUser = async function () {
 
         const user = userCredential.user;
 
+        // SAVE USER DATA
+
         await set(
 
             ref(database, "users/" + user.uid),
@@ -177,8 +212,26 @@ window.registerUser = async function () {
             {
                 name: name,
                 email: email,
-                uid: user.uid
+                uid: user.uid,
+                createdAt: Date.now()
             }
+        );
+
+        // SAVE LOCAL USER
+
+        localStorage.setItem(
+            "userName",
+            name
+        );
+
+        localStorage.setItem(
+            "userEmail",
+            email
+        );
+
+        localStorage.setItem(
+            "userId",
+            user.uid
         );
 
         alert("Account Created");
@@ -209,6 +262,8 @@ window.googleLogin = async function () {
 
         const user = result.user;
 
+        // SAVE USER
+
         await set(
 
             ref(database, "users/" + user.uid),
@@ -217,8 +272,26 @@ window.googleLogin = async function () {
                 name: user.displayName,
                 email: user.email,
                 uid: user.uid,
-                photo: user.photoURL
+                photo: user.photoURL,
+                createdAt: Date.now()
             }
+        );
+
+        // SAVE LOCAL USER
+
+        localStorage.setItem(
+            "userName",
+            user.displayName
+        );
+
+        localStorage.setItem(
+            "userEmail",
+            user.email
+        );
+
+        localStorage.setItem(
+            "userId",
+            user.uid
         );
 
         alert("Welcome " + user.displayName);
@@ -243,6 +316,14 @@ window.googleLogin = async function () {
 window.logoutUser = async function () {
 
     await signOut(auth);
+
+    localStorage.removeItem("userName");
+
+    localStorage.removeItem("userEmail");
+
+    localStorage.removeItem("userId");
+
+    localStorage.removeItem("currentRoom");
 
     window.location.href = "login.html";
 };
@@ -278,8 +359,10 @@ window.createRoom = async function () {
 
             roomId: roomId,
 
-            createdAt: Date.now()
+            createdAt: Date.now(),
 
+            createdBy:
+                localStorage.getItem("userName")
         }
 
     );

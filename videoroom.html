@@ -832,7 +832,6 @@ document.getElementById(
         .enabled = cameraEnabled;
 };
 
-
 // =====================================
 // CHAT SYSTEM
 // =====================================
@@ -845,6 +844,12 @@ const sendBtn =
 
 const messages =
     document.getElementById("messages");
+
+
+// GET USER NAME
+
+let currentUserName =
+    localStorage.getItem("userName") || "User";
 
 
 // SEND MESSAGE
@@ -867,7 +872,7 @@ sendBtn.onclick = async () => {
 
         {
             text:text,
-            sender:"User",
+            sender:currentUserName,
             time:Date.now()
         }
     );
@@ -901,9 +906,15 @@ onValue(
 
             div.classList.add("message");
 
+            if(data.sender === currentUserName){
+
+                div.classList.add("myMessage");
+            }
+
             div.innerHTML =
+                "<b>" +
                 data.sender +
-                ": " +
+                "</b>: " +
                 data.text;
 
             messages.appendChild(div);
