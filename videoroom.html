@@ -22,20 +22,17 @@
 body{
 
     background:#030712;
-
     color:white;
-
-    height:100vh;
-
+    min-height:100vh;
     overflow:hidden;
 }
 
 .roomContainer{
 
     display:flex;
-
     height:100vh;
 }
+
 
 /* =========================
    VIDEO SECTION
@@ -44,9 +41,7 @@ body{
 .videoSection{
 
     flex:1;
-
     padding:20px;
-
     position:relative;
 }
 
@@ -71,7 +66,6 @@ body{
     height:50px;
 
     border:none;
-
     border-radius:15px;
 
     background:#EF4444;
@@ -84,12 +78,15 @@ body{
     cursor:pointer;
 }
 
+
+/* =========================
+   VIDEOS
+========================= */
+
 .videoGrid{
 
     display:grid;
-
     grid-template-columns:1fr 1fr;
-
     gap:20px;
 
     height:80vh;
@@ -133,6 +130,7 @@ video{
 
     font-size:14px;
 }
+
 
 /* =========================
    CONTROLS
@@ -188,8 +186,9 @@ video{
     background:#374151;
 }
 
+
 /* =========================
-   RESPONSIVE
+   MOBILE
 ========================= */
 
 @media(max-width:900px){
@@ -197,8 +196,12 @@ video{
     .videoGrid{
 
         grid-template-columns:1fr;
-
         height:auto;
+    }
+
+    .videoBox{
+
+        height:300px;
     }
 
     body{
@@ -209,11 +212,6 @@ video{
     .roomContainer{
 
         height:auto;
-    }
-
-    .videoBox{
-
-        height:300px;
     }
 }
 
@@ -234,7 +232,7 @@ video{
             <div class="roomTitle"
                  id="roomTitle">
 
-                NearUs Room
+                ROOM
 
             </div>
 
@@ -247,7 +245,8 @@ video{
 
         </div>
 
-        <!-- VIDEO GRID -->
+
+        <!-- VIDEOS -->
 
         <div class="videoGrid">
 
@@ -266,6 +265,7 @@ video{
                 </div>
 
             </div>
+
 
             <!-- REMOTE -->
 
@@ -288,6 +288,7 @@ video{
 
 </div>
 
+
 <!-- CONTROLS -->
 
 <div class="bottomControls">
@@ -306,28 +307,10 @@ video{
 
     </button>
 
-    <button class="controlBtn"
-            id="createCallBtn">
-
-        📞
-
-    </button>
-
-    <button class="controlBtn"
-            id="joinCallBtn">
-
-        👥
-
-    </button>
-
 </div>
 
 
 <script type="module">
-
-// IMPORT FIREBASE APP
-
-import "./js/app.js";
 
 import {
 
@@ -351,9 +334,9 @@ import {
 from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
 
-// ======================================
-// FIREBASE CONFIG
-// ======================================
+// =====================================
+// FIREBASE
+// =====================================
 
 const firebaseConfig = {
 
@@ -371,22 +354,18 @@ const firebaseConfig = {
     messagingSenderId: "920428262831",
 
     appId: "1:920428262831:web:042c145ca0c5724223ab5a"
-
 };
 
+const app =
+    initializeApp(firebaseConfig);
 
-// ======================================
-// INITIALIZE
-// ======================================
-
-const app = initializeApp(firebaseConfig);
-
-const database = getDatabase(app);
+const database =
+    getDatabase(app);
 
 
-// ======================================
+// =====================================
 // ROOM
-// ======================================
+// =====================================
 
 const params =
     new URLSearchParams(window.location.search);
@@ -399,9 +378,9 @@ document.getElementById(
 ).innerText = roomId;
 
 
-// ======================================
-// VIDEO ELEMENTS
-// ======================================
+// =====================================
+// VIDEOS
+// =====================================
 
 const localVideo =
     document.getElementById("localVideo");
@@ -410,20 +389,18 @@ const remoteVideo =
     document.getElementById("remoteVideo");
 
 
-// ======================================
+// =====================================
 // STREAMS
-// ======================================
+// =====================================
 
 let localStream;
-
 let remoteStream;
-
 let peerConnection;
 
 
-// ======================================
-// WEBRTC SERVERS
-// ======================================
+// =====================================
+// STUN SERVER
+// =====================================
 
 const servers = {
 
@@ -438,56 +415,43 @@ const servers = {
 };
 
 
-// ======================================
+// =====================================
 // START CAMERA
-// ======================================
+// =====================================
 
-async function startCamera(){
+async function startVideo(){
 
-    try{
+    localStream =
+        await navigator.mediaDevices.getUserMedia({
 
-        localStream =
-            await navigator.mediaDevices.getUserMedia({
+            video:true,
+            audio:true
 
-                video:true,
-                audio:true
+        });
 
-            });
-
-        localVideo.srcObject =
-            localStream;
-
-        createPeerConnection();
-
-    }
-
-    catch(error){
-
-        console.log(error);
-
-        alert(
-            "Camera/Microphone Permission Denied"
-        );
-    }
-}
-
-startCamera();
-
-
-// ======================================
-// CREATE PEER
-// ======================================
-
-function createPeerConnection(){
-
-    peerConnection =
-        new RTCPeerConnection(servers);
+    localVideo.srcObject =
+        localStream;
 
     remoteStream =
         new MediaStream();
 
     remoteVideo.srcObject =
         remoteStream;
+
+    createPeer();
+
+    await startCall();
+}
+
+
+// =====================================
+// CREATE PEER
+// =====================================
+
+function createPeer(){
+
+    peerConnection =
+        new RTCPeerConnection(servers);
 
 
     // LOCAL TRACKS
@@ -516,10 +480,11 @@ function createPeerConnection(){
                     remoteStream.addTrack(track);
 
                 });
+
         };
 
 
-    // ICE CANDIDATES
+    // ICE
 
     peerConnection.onicecandidate =
         async event => {
@@ -530,7 +495,7 @@ function createPeerConnection(){
 
                     ref(
                         database,
-                        "rooms/" +
+                        "calls/" +
                         roomId +
                         "/candidates"
                     ),
@@ -542,45 +507,49 @@ function createPeerConnection(){
 }
 
 
-// ======================================
-// CREATE CALL
-// ======================================
+// =====================================
+// START CALL
+// =====================================
 
-async function createCall(){
+async function startCall(){
 
-    const offer =
-        await peerConnection.createOffer();
+    const callRef =
+        ref(database, "calls/" + roomId);
 
-    await peerConnection.setLocalDescription(
-        offer
-    );
+    const snapshot =
+        await get(callRef);
 
-    await set(
 
-        ref(database, "calls/" + roomId),
+    // =========================
+    // CREATE OFFER
+    // =========================
 
-        {
+    if(!snapshot.exists()){
+
+        const offer =
+            await peerConnection.createOffer();
+
+        await peerConnection.setLocalDescription(
+            offer
+        );
+
+        await set(callRef, {
 
             offer: {
 
                 type: offer.type,
-
                 sdp: offer.sdp
-
             }
 
-        }
-    );
+        });
 
-    // LISTEN ANSWER
 
-    onValue(
+        // WAIT FOR ANSWER
 
-        ref(database, "calls/" + roomId),
+        onValue(callRef, async snapshot => {
 
-        async snapshot => {
-
-            const data = snapshot.val();
+            const data =
+                snapshot.val();
 
             if(
                 data?.answer &&
@@ -594,84 +563,99 @@ async function createCall(){
 
                 await peerConnection
                     .setRemoteDescription(answer);
+
+                console.log(
+                    "Connected to Answer"
+                );
             }
-        }
-    );
 
-    alert("Call Created");
-}
+        });
 
-
-// ======================================
-// JOIN CALL
-// ======================================
-
-async function joinCall(){
-
-    const callRef =
-        ref(database, "calls/" + roomId);
-
-    const snapshot =
-        await get(callRef);
-
-    const callData =
-        snapshot.val();
-
-    if(!callData){
-
-        alert("Call not found");
-
-        return;
     }
 
-    await peerConnection.setRemoteDescription(
 
-        new RTCSessionDescription(
-            callData.offer
-        )
-    );
+    // =========================
+    // JOIN ROOM
+    // =========================
 
-    const answer =
-        await peerConnection.createAnswer();
+    else{
 
-    await peerConnection.setLocalDescription(
-        answer
-    );
+        const data =
+            snapshot.val();
 
-    await set(callRef, {
+        await peerConnection.setRemoteDescription(
 
-        offer: callData.offer,
+            new RTCSessionDescription(
+                data.offer
+            )
+        );
 
-        answer: {
+        const answer =
+            await peerConnection.createAnswer();
 
-            type: answer.type,
+        await peerConnection.setLocalDescription(
+            answer
+        );
 
-            sdp: answer.sdp
+        await set(callRef, {
+
+            offer:data.offer,
+
+            answer:{
+
+                type:answer.type,
+                sdp:answer.sdp
+            }
+
+        });
+
+        console.log("Joined Call");
+    }
+
+
+    // =========================
+    // ICE CANDIDATES
+    // =========================
+
+    onValue(
+
+        ref(
+            database,
+            "calls/" +
+            roomId +
+            "/candidates"
+        ),
+
+        snapshot => {
+
+            snapshot.forEach(child => {
+
+                const candidate =
+                    new RTCIceCandidate(
+                        child.val()
+                    );
+
+                peerConnection.addIceCandidate(
+                    candidate
+                );
+
+            });
 
         }
-
-    });
-
-    alert("Joined Call");
+    );
 }
 
 
-// ======================================
-// BUTTON EVENTS
-// ======================================
+// =====================================
+// START
+// =====================================
 
-document.getElementById(
-    "createCallBtn"
-).onclick = createCall;
-
-document.getElementById(
-    "joinCallBtn"
-).onclick = joinCall;
+startVideo();
 
 
-// ======================================
-// MIC CONTROL
-// ======================================
+// =====================================
+// MIC
+// =====================================
 
 let micEnabled = true;
 
@@ -687,9 +671,9 @@ document.getElementById(
 };
 
 
-// ======================================
-// CAMERA CONTROL
-// ======================================
+// =====================================
+// CAMERA
+// =====================================
 
 let cameraEnabled = true;
 
