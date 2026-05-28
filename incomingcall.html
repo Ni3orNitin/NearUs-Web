@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Incoming Call</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        body{
+            overflow:hidden;
+        }
+
+        .callContainer{
+
+            width:100%;
+            height:100vh;
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #0F172A,
+                            #1E1B4B
+                    );
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            position:relative;
+        }
+
+        /* BG GLOW */
+
+        .glow{
+
+            position:absolute;
+
+            width:500px;
+            height:500px;
+
+            background:#8B5CF6;
+
+            filter:blur(180px);
+
+            opacity:0.25;
+
+            border-radius:50%;
+        }
+
+        /* CARD */
+
+        .callCard{
+
+            width:420px;
+
+            background:
+                    rgba(17,24,39,0.8);
+
+            backdrop-filter:blur(15px);
+
+            border:
+                    1px solid rgba(255,255,255,0.08);
+
+            border-radius:40px;
+
+            padding:45px 35px;
+
+            text-align:center;
+
+            position:relative;
+
+            z-index:2;
+        }
+
+        /* PROFILE */
+
+        .profileRing{
+
+            width:170px;
+            height:170px;
+
+            border-radius:50%;
+
+            margin:auto;
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #8B5CF6,
+                            #EC4899
+                    );
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            animation:pulse 2s infinite;
+        }
+
+        .profileImage{
+
+            width:145px;
+            height:145px;
+
+            border-radius:50%;
+
+            background:white;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            font-size:55px;
+            font-weight:bold;
+
+            color:#6D28D9;
+        }
+
+        @keyframes pulse{
+
+            0%{
+                transform:scale(1);
+            }
+
+            50%{
+                transform:scale(1.06);
+            }
+
+            100%{
+                transform:scale(1);
+            }
+
+        }
+
+        /* TEXT */
+
+        .callerName{
+
+            margin-top:35px;
+
+            font-size:38px;
+            font-weight:bold;
+        }
+
+        .callStatus{
+
+            margin-top:12px;
+
+            color:#D1D5DB;
+
+            font-size:18px;
+        }
+
+        /* ACTIONS */
+
+        .callActions{
+
+            margin-top:45px;
+
+            display:flex;
+            justify-content:center;
+            gap:28px;
+        }
+
+        .callBtn{
+
+            width:90px;
+            height:90px;
+
+            border:none;
+            border-radius:30px;
+
+            font-size:34px;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .callBtn:hover{
+            transform:scale(1.08);
+        }
+
+        .decline{
+            background:#DC2626;
+            color:white;
+        }
+
+        .accept{
+            background:#22C55E;
+            color:white;
+        }
+
+        /* EXTRA OPTIONS */
+
+        .extraOptions{
+
+            margin-top:35px;
+
+            display:flex;
+            justify-content:center;
+            gap:18px;
+
+            flex-wrap:wrap;
+        }
+
+        .option{
+
+            padding:12px 18px;
+
+            border-radius:16px;
+
+            background:#1F2937;
+
+            color:white;
+
+            font-size:14px;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:600px){
+
+            .callCard{
+
+                width:92%;
+                padding:35px 20px;
+            }
+
+            .callerName{
+                font-size:32px;
+            }
+
+            .callBtn{
+
+                width:78px;
+                height:78px;
+
+                font-size:30px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="callContainer">
+
+    <div class="glow"></div>
+
+    <!-- CARD -->
+
+    <div class="callCard">
+
+        <!-- PROFILE -->
+
+        <div class="profileRing">
+
+            <div class="profileImage">
+                A
+            </div>
+
+        </div>
+
+        <!-- TEXT -->
+
+        <div class="callerName">
+            Aryan
+        </div>
+
+        <div class="callStatus">
+            Incoming video call...
+        </div>
+
+        <!-- ACTIONS -->
+
+        <div class="callActions">
+
+            <button class="callBtn decline">
+                ❌
+            </button>
+
+            <button class="callBtn accept"
+                    onclick="window.location.href='room.html'">
+
+                📞
+
+            </button>
+
+        </div>
+
+        <!-- EXTRA -->
+
+        <div class="extraOptions">
+
+            <div class="option">
+                🎥 Video Call
+            </div>
+
+            <div class="option">
+                🔊 HD Audio
+            </div>
+
+            <div class="option">
+                👥 Group Room
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

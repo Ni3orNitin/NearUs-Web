@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>NearUs Home</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        body{
+
+            background:
+                    linear-gradient(
+                            180deg,
+                            #050816,
+                            #0B1120
+                    );
+
+            min-height:100vh;
+
+            color:white;
+
+            overflow-x:hidden;
+        }
+
+        .homeContainer{
+
+            padding:35px;
+        }
+
+        /* TOP */
+
+        .topBar{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .profileBox{
+
+            display:flex;
+            align-items:center;
+            gap:15px;
+        }
+
+        .profileImage{
+
+            width:60px;
+            height:60px;
+
+            border-radius:20px;
+
+            background:#8B5CF6;
+        }
+
+        .profileText h2{
+
+            font-size:28px;
+        }
+
+        .profileText p{
+
+            color:#9CA3AF;
+            margin-top:5px;
+        }
+
+        .settingsBtn{
+
+            width:55px;
+            height:55px;
+
+            border-radius:18px;
+
+            border:none;
+
+            background:#111827;
+
+            color:white;
+
+            font-size:22px;
+
+            cursor:pointer;
+        }
+
+        /* HERO */
+
+        .heroCard{
+
+            margin-top:35px;
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #8B5CF6,
+                            #6D28D9
+                    );
+
+            border-radius:35px;
+
+            padding:35px;
+
+            position:relative;
+
+            overflow:hidden;
+        }
+
+        .heroCard::before{
+
+            content:"";
+
+            position:absolute;
+
+            width:250px;
+            height:250px;
+
+            background:white;
+
+            opacity:0.08;
+
+            border-radius:50%;
+
+            right:-80px;
+            top:-80px;
+        }
+
+        .heroCard h1{
+
+            font-size:42px;
+
+            position:relative;
+            z-index:2;
+        }
+
+        .heroCard p{
+
+            margin-top:15px;
+
+            line-height:30px;
+
+            color:#F3F4F6;
+
+            position:relative;
+            z-index:2;
+        }
+
+        .heroButtons{
+
+            margin-top:30px;
+
+            display:flex;
+            gap:18px;
+
+            flex-wrap:wrap;
+
+            position:relative;
+            z-index:2;
+        }
+
+        .heroButtons button{
+
+            padding:16px 28px;
+
+            border:none;
+
+            border-radius:18px;
+
+            cursor:pointer;
+
+            font-size:15px;
+            font-weight:bold;
+        }
+
+        .startBtn{
+
+            background:white;
+            color:#6D28D9;
+        }
+
+        .joinBtn{
+
+            background:#111827;
+            color:white;
+        }
+
+        /* QUICK */
+
+        .sectionTitle{
+
+            margin-top:45px;
+            margin-bottom:22px;
+
+            font-size:28px;
+        }
+
+        .quickGrid{
+
+            display:grid;
+
+            grid-template-columns:
+                    repeat(auto-fit,minmax(220px,1fr));
+
+            gap:20px;
+        }
+
+        .quickCard{
+
+            background:#111827;
+
+            padding:28px;
+
+            border-radius:28px;
+
+            transition:0.3s;
+
+            cursor:pointer;
+        }
+
+        .quickCard:hover{
+
+            transform:translateY(-8px);
+
+            box-shadow:
+                    0 0 25px rgba(139,92,246,0.25);
+        }
+
+        .quickIcon{
+
+            width:75px;
+            height:75px;
+
+            border-radius:22px;
+
+            background:#8B5CF6;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            font-size:35px;
+        }
+
+        .quickCard h2{
+
+            margin-top:20px;
+            margin-bottom:10px;
+        }
+
+        .quickCard p{
+
+            color:#9CA3AF;
+            line-height:28px;
+        }
+
+        /* ACTIVE FRIENDS */
+
+        .friendsRow{
+
+            margin-top:20px;
+
+            display:flex;
+            gap:18px;
+
+            overflow-x:auto;
+
+            padding-bottom:10px;
+        }
+
+        .friendCard{
+
+            min-width:150px;
+
+            background:#111827;
+
+            padding:20px;
+
+            border-radius:25px;
+
+            text-align:center;
+        }
+
+        .friendAvatar{
+
+            width:70px;
+            height:70px;
+
+            margin:auto;
+
+            border-radius:22px;
+
+            background:#8B5CF6;
+        }
+
+        .friendCard h3{
+
+            margin-top:15px;
+        }
+
+        .online{
+
+            color:#22C55E;
+
+            margin-top:6px;
+        }
+
+        /* BOTTOM NAV */
+
+        .bottomNav{
+
+            position:fixed;
+
+            bottom:20px;
+            left:50%;
+
+            transform:translateX(-50%);
+
+            width:90%;
+            max-width:500px;
+
+            background:
+                    rgba(17,24,39,0.9);
+
+            backdrop-filter:blur(15px);
+
+            border:1px solid #1F2937;
+
+            padding:16px;
+
+            border-radius:28px;
+
+            display:flex;
+            justify-content:space-around;
+            align-items:center;
+
+            z-index:999;
+        }
+
+        .navItem{
+
+            text-align:center;
+
+            color:#9CA3AF;
+
+            text-decoration:none;
+
+            font-size:14px;
+        }
+
+        .navItem.active{
+
+            color:#8B5CF6;
+        }
+
+        .navIcon{
+
+            font-size:24px;
+
+            margin-bottom:5px;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:768px){
+
+            .homeContainer{
+                padding:20px;
+            }
+
+            .heroCard h1{
+                font-size:32px;
+            }
+
+            .quickGrid{
+                grid-template-columns:1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="homeContainer">
+
+    <!-- TOP -->
+
+    <div class="topBar">
+
+        <div class="profileBox">
+
+            <div class="profileImage"></div>
+
+            <div class="profileText">
+
+                <h2>
+                    Welcome Back
+                </h2>
+
+                <p>
+                    Nitin Kumar
+                </p>
+
+            </div>
+
+        </div>
+
+        <button class="settingsBtn"
+                onclick="window.location.href='settings.html'">
+
+            ⚙️
+
+        </button>
+
+    </div>
+
+    <!-- HERO -->
+
+    <div class="heroCard">
+
+        <h1>
+            Stay Connected With Everyone
+        </h1>
+
+        <p>
+
+            Create rooms, join video calls,
+            watch movies together and enjoy
+            multiplayer games with your friends.
+
+        </p>
+
+        <div class="heroButtons">
+
+            <button class="startBtn"
+                    onclick="window.location.href='room.html'">
+
+                Start Room
+
+            </button>
+
+            <button class="joinBtn"
+                    onclick="window.location.href='room.html'">
+
+                Join Room
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- QUICK -->
+
+    <h1 class="sectionTitle">
+        Quick Access
+    </h1>
+
+    <div class="quickGrid">
+
+        <!-- CARD -->
+
+        <div class="quickCard"
+             onclick="window.location.href='watchparty.html'">
+
+            <div class="quickIcon">
+                🍿
+            </div>
+
+            <h2>
+                Watch Party
+            </h2>
+
+            <p>
+                Watch movies and videos together
+                in sync with friends.
+            </p>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="quickCard"
+             onclick="window.location.href='games.html'">
+
+            <div class="quickIcon">
+                🎮
+            </div>
+
+            <h2>
+                Multiplayer Games
+            </h2>
+
+            <p>
+                Enjoy mini games together
+                while staying connected.
+            </p>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="quickCard"
+             onclick="window.location.href='chat.html'">
+
+            <div class="quickIcon">
+                💬
+            </div>
+
+            <h2>
+                Smart Chat
+            </h2>
+
+            <p>
+                Chat instantly with reactions,
+                images and voice notes.
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- FRIENDS -->
+
+    <h1 class="sectionTitle">
+        Active Friends
+    </h1>
+
+    <div class="friendsRow">
+
+        <div class="friendCard">
+
+            <div class="friendAvatar"></div>
+
+            <h3>
+                Aman
+            </h3>
+
+            <p class="online">
+                Online
+            </p>
+
+        </div>
+
+        <div class="friendCard">
+
+            <div class="friendAvatar"></div>
+
+            <h3>
+                Riya
+            </h3>
+
+            <p class="online">
+                In Call
+            </p>
+
+        </div>
+
+        <div class="friendCard">
+
+            <div class="friendAvatar"></div>
+
+            <h3>
+                Rahul
+            </h3>
+
+            <p class="online">
+                Watching
+            </p>
+
+        </div>
+
+        <div class="friendCard">
+
+            <div class="friendAvatar"></div>
+
+            <h3>
+                Kunal
+            </h3>
+
+            <p class="online">
+                Gaming
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+
+<div class="bottomNav">
+
+    <a href="home.html"
+       class="navItem active">
+
+        <div class="navIcon">
+            🏠
+        </div>
+
+        Home
+
+    </a>
+
+    <a href="chat.html"
+       class="navItem">
+
+        <div class="navIcon">
+            💬
+        </div>
+
+        Chat
+
+    </a>
+
+    <a href="room.html"
+       class="navItem">
+
+        <div class="navIcon">
+            📹
+        </div>
+
+        Rooms
+
+    </a>
+
+    <a href="games.html"
+       class="navItem">
+
+        <div class="navIcon">
+            🎮
+        </div>
+
+        Games
+
+    </a>
+
+    <a href="profile.html"
+       class="navItem">
+
+        <div class="navIcon">
+            👤
+        </div>
+
+        Profile
+
+    </a>
+
+</div>
+
+<script type="module"
+        src="js/app.js"></script>
+
+</body>
+</html>

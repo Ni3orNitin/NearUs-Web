@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>NearUs Chat</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        .chatContainer{
+            display:flex;
+            height:100vh;
+            overflow:hidden;
+        }
+
+        /* SIDEBAR */
+
+        .friendsSidebar{
+            width:340px;
+            background:#0B1120;
+            border-right:1px solid #1F2937;
+            padding:25px;
+            overflow-y:auto;
+        }
+
+        .friendsSidebar h2{
+            margin-bottom:25px;
+            font-size:30px;
+        }
+
+        .friendItem{
+            display:flex;
+            align-items:center;
+            gap:16px;
+
+            background:#111827;
+
+            padding:16px;
+            border-radius:22px;
+
+            margin-bottom:18px;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .friendItem:hover{
+            transform:translateX(5px);
+            background:#1F2937;
+        }
+
+        .avatar{
+            width:60px;
+            height:60px;
+
+            border-radius:20px;
+
+            background:#8B5CF6;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .status{
+            color:#22C55E;
+            font-size:14px;
+            margin-top:6px;
+        }
+
+        /* MAIN CHAT */
+
+        .chatMain{
+            flex:1;
+
+            display:flex;
+            flex-direction:column;
+
+            background:#050816;
+        }
+
+        /* TOP BAR */
+
+        .chatTop{
+            height:100px;
+
+            border-bottom:1px solid #1F2937;
+
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+
+            padding:0 30px;
+        }
+
+        .chatUser{
+            display:flex;
+            align-items:center;
+            gap:18px;
+        }
+
+        .chatActions{
+            display:flex;
+            gap:15px;
+        }
+
+        .actionBtn{
+            width:55px;
+            height:55px;
+
+            border:none;
+            border-radius:18px;
+
+            background:#111827;
+            color:white;
+
+            font-size:20px;
+
+            cursor:pointer;
+        }
+
+        /* MESSAGES */
+
+        .messages{
+            flex:1;
+
+            padding:30px;
+
+            overflow-y:auto;
+        }
+
+        .messageRow{
+            display:flex;
+            margin-bottom:22px;
+        }
+
+        .messageRow.you{
+            justify-content:flex-end;
+        }
+
+        .messageBubble{
+            max-width:420px;
+
+            padding:18px 22px;
+
+            border-radius:24px;
+
+            background:#111827;
+
+            line-height:28px;
+        }
+
+        .messageRow.you .messageBubble{
+            background:#8B5CF6;
+        }
+
+        .time{
+            margin-top:10px;
+            font-size:13px;
+            opacity:0.7;
+        }
+
+        /* INPUT */
+
+        .chatInputArea{
+            padding:25px;
+
+            border-top:1px solid #1F2937;
+
+            display:flex;
+            align-items:center;
+            gap:15px;
+        }
+
+        .inputBox{
+            flex:1;
+
+            display:flex;
+            align-items:center;
+            gap:15px;
+
+            background:#111827;
+
+            padding:15px 18px;
+
+            border-radius:24px;
+        }
+
+        .inputBox input{
+            flex:1;
+
+            background:none;
+            border:none;
+            outline:none;
+
+            color:white;
+            font-size:15px;
+        }
+
+        .inputBtn{
+            width:50px;
+            height:50px;
+
+            border:none;
+            border-radius:16px;
+
+            background:#1F2937;
+            color:white;
+
+            font-size:20px;
+
+            cursor:pointer;
+        }
+
+        .sendBtn{
+            width:65px;
+            height:65px;
+
+            border:none;
+            border-radius:22px;
+
+            background:#8B5CF6;
+            color:white;
+
+            font-size:22px;
+
+            cursor:pointer;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:900px){
+
+            .friendsSidebar{
+                display:none;
+            }
+
+            .chatTop{
+                padding:0 18px;
+            }
+
+            .messages{
+                padding:20px;
+            }
+
+            .chatInputArea{
+                padding:18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="chatContainer">
+
+    <!-- FRIENDS -->
+
+    <div class="friendsSidebar">
+
+        <h2>
+            Chats
+        </h2>
+
+        <!-- FRIEND -->
+
+        <div class="friendItem">
+
+            <div class="avatar">
+                A
+            </div>
+
+            <div>
+
+                <h3>
+                    Aryan
+                </h3>
+
+                <p class="status">
+                    Online
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- FRIEND -->
+
+        <div class="friendItem">
+
+            <div class="avatar">
+                R
+            </div>
+
+            <div>
+
+                <h3>
+                    Rohan
+                </h3>
+
+                <p class="status">
+                    Watching Movie
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- FRIEND -->
+
+        <div class="friendItem">
+
+            <div class="avatar">
+                S
+            </div>
+
+            <div>
+
+                <h3>
+                    Sneha
+                </h3>
+
+                <p class="status">
+                    In Game Room
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MAIN CHAT -->
+
+    <div class="chatMain">
+
+        <!-- TOP -->
+
+        <div class="chatTop">
+
+            <div class="chatUser">
+
+                <div class="avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <h2>
+                        Aryan
+                    </h2>
+
+                    <p class="status">
+                        Active Now
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="chatActions">
+
+                <button class="actionBtn">
+                    📞
+                </button>
+
+                <button class="actionBtn">
+                    🎥
+                </button>
+
+                <button class="actionBtn">
+                    ℹ
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- MESSAGES -->
+
+        <div class="messages">
+
+            <div class="messageRow">
+
+                <div class="messageBubble">
+
+                    Bro tonight movie plan? 🍿
+
+                    <div class="time">
+                        8:45 PM
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="messageRow you">
+
+                <div class="messageBubble">
+
+                    Yes 🔥 Let's do watch party tonight.
+
+                    <div class="time">
+                        8:46 PM
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="messageRow">
+
+                <div class="messageBubble">
+
+                    Also invite Rohan 🎮
+
+                    <div class="time">
+                        8:47 PM
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- INPUT -->
+
+        <div class="chatInputArea">
+
+            <div class="inputBox">
+
+                <button class="inputBtn">
+                    😊
+                </button>
+
+                <input type="text"
+                       placeholder="Type message...">
+
+                <button class="inputBtn">
+                    📎
+                </button>
+
+                <button class="inputBtn">
+                    🎤
+                </button>
+
+            </div>
+
+            <button class="sendBtn">
+                ➤
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

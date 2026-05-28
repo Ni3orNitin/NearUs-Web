@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>NearUs Games</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        .gamesContainer{
+            padding:35px;
+            min-height:100vh;
+        }
+
+        /* TOP */
+
+        .topBar{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:20px;
+        }
+
+        .topBar h1{
+            font-size:42px;
+        }
+
+        .topBar p{
+            color:#9CA3AF;
+            margin-top:8px;
+        }
+
+        .createBtn{
+            padding:15px 28px;
+            border:none;
+            border-radius:18px;
+            background:#8B5CF6;
+            color:white;
+            cursor:pointer;
+            font-size:15px;
+        }
+
+        /* LIVE ROOM */
+
+        .liveRoom{
+            margin-top:30px;
+            background:linear-gradient(
+                    135deg,
+                    #8B5CF6,
+                    #6D28D9
+            );
+
+            padding:30px;
+            border-radius:35px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:25px;
+        }
+
+        .liveRoom h2{
+            font-size:34px;
+        }
+
+        .liveRoom p{
+            margin-top:10px;
+            color:#E5E7EB;
+        }
+
+        .joinLiveBtn{
+            padding:16px 35px;
+            border:none;
+            border-radius:18px;
+            background:white;
+            color:#6D28D9;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        /* GAMES GRID */
+
+        .gamesGrid{
+            margin-top:40px;
+
+            display:grid;
+
+            grid-template-columns:
+                    repeat(auto-fit,minmax(260px,1fr));
+
+            gap:25px;
+        }
+
+        .gameCard{
+            background:#111827;
+            border-radius:30px;
+            overflow:hidden;
+            transition:0.3s;
+        }
+
+        .gameCard:hover{
+            transform:translateY(-8px);
+        }
+
+        .gameImage{
+            height:180px;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            font-size:70px;
+        }
+
+        .uno{
+            background:linear-gradient(
+                    135deg,
+                    #EF4444,
+                    #F59E0B
+            );
+        }
+
+        .tic{
+            background:linear-gradient(
+                    135deg,
+                    #3B82F6,
+                    #06B6D4
+            );
+        }
+
+        .snake{
+            background:linear-gradient(
+                    135deg,
+                    #22C55E,
+                    #16A34A
+            );
+        }
+
+        .quiz{
+            background:linear-gradient(
+                    135deg,
+                    #EC4899,
+                    #9333EA
+            );
+        }
+
+        .gameContent{
+            padding:25px;
+        }
+
+        .gameContent h2{
+            margin-bottom:10px;
+        }
+
+        .gameContent p{
+            color:#9CA3AF;
+            line-height:26px;
+        }
+
+        .playBtn{
+            margin-top:20px;
+
+            width:100%;
+            height:52px;
+
+            border:none;
+            border-radius:18px;
+
+            background:#8B5CF6;
+            color:white;
+
+            font-size:15px;
+            cursor:pointer;
+        }
+
+        /* FRIENDS SECTION */
+
+        .friendsSection{
+            margin-top:45px;
+        }
+
+        .friendsSection h2{
+            margin-bottom:20px;
+        }
+
+        .friendsGrid{
+            display:grid;
+
+            grid-template-columns:
+                    repeat(auto-fit,minmax(220px,1fr));
+
+            gap:20px;
+        }
+
+        .friendCard{
+            background:#111827;
+            padding:20px;
+            border-radius:25px;
+        }
+
+        .friendTop{
+            display:flex;
+            align-items:center;
+            gap:15px;
+        }
+
+        .avatar{
+            width:60px;
+            height:60px;
+            border-radius:20px;
+
+            background:#8B5CF6;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            font-size:22px;
+            font-weight:bold;
+        }
+
+        .status{
+            color:#22C55E;
+            font-size:14px;
+            margin-top:5px;
+        }
+
+        .inviteBtn{
+            margin-top:18px;
+
+            width:100%;
+            height:50px;
+
+            border:none;
+            border-radius:16px;
+
+            background:#1F2937;
+            color:white;
+
+            cursor:pointer;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:768px){
+
+            .gamesContainer{
+                padding:20px;
+            }
+
+            .topBar h1{
+                font-size:34px;
+            }
+
+            .liveRoom h2{
+                font-size:28px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="gamesContainer">
+
+    <!-- TOP -->
+
+    <div class="topBar">
+
+        <div>
+
+            <h1>
+                🎮 Game Zone
+            </h1>
+
+            <p>
+                Play together while staying on voice/video call
+            </p>
+
+        </div>
+
+        <button class="createBtn">
+            Create Game Room
+        </button>
+
+    </div>
+
+    <!-- LIVE ROOM -->
+
+    <div class="liveRoom">
+
+        <div>
+
+            <h2>
+                Multiplayer Night
+            </h2>
+
+            <p>
+                6 friends are currently playing UNO together
+            </p>
+
+        </div>
+
+        <button class="joinLiveBtn">
+            Join Now
+        </button>
+
+    </div>
+
+    <!-- GAMES -->
+
+    <div class="gamesGrid">
+
+        <!-- UNO -->
+
+        <div class="gameCard">
+
+            <div class="gameImage uno">
+                🃏
+            </div>
+
+            <div class="gameContent">
+
+                <h2>
+                    UNO Party
+                </h2>
+
+                <p>
+                    Play multiplayer UNO with live voice chat
+                    and reactions.
+                </p>
+
+                <button class="playBtn">
+                    Play UNO
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- TIC TAC TOE -->
+
+        <div class="gameCard">
+
+            <div class="gameImage tic">
+                ❌
+            </div>
+
+            <div class="gameContent">
+
+                <h2>
+                    Tic Tac Toe
+                </h2>
+
+                <p>
+                    Quick 1v1 matches with friends
+                    during calls.
+                </p>
+
+                <button class="playBtn">
+                    Start Match
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- SNAKE -->
+
+        <div class="gameCard">
+
+            <div class="gameImage snake">
+                🐍
+            </div>
+
+            <div class="gameContent">
+
+                <h2>
+                    Snake Battle
+                </h2>
+
+                <p>
+                    Multiplayer snake challenge
+                    with real-time scores.
+                </p>
+
+                <button class="playBtn">
+                    Play Snake
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- QUIZ -->
+
+        <div class="gameCard">
+
+            <div class="gameImage quiz">
+                🧠
+            </div>
+
+            <div class="gameContent">
+
+                <h2>
+                    Quiz Arena
+                </h2>
+
+                <p>
+                    Compete with friends
+                    in fast live quizzes.
+                </p>
+
+                <button class="playBtn">
+                    Start Quiz
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FRIENDS -->
+
+    <div class="friendsSection">
+
+        <h2>
+            Friends Online
+        </h2>
+
+        <div class="friendsGrid">
+
+            <!-- FRIEND -->
+
+            <div class="friendCard">
+
+                <div class="friendTop">
+
+                    <div class="avatar">
+                        A
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Aryan
+                        </h3>
+
+                        <p class="status">
+                            Online
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button class="inviteBtn">
+                    Invite to Game
+                </button>
+
+            </div>
+
+            <!-- FRIEND -->
+
+            <div class="friendCard">
+
+                <div class="friendTop">
+
+                    <div class="avatar">
+                        R
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Rohan
+                        </h3>
+
+                        <p class="status">
+                            In Room
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button class="inviteBtn">
+                    Join Friend
+                </button>
+
+            </div>
+
+            <!-- FRIEND -->
+
+            <div class="friendCard">
+
+                <div class="friendTop">
+
+                    <div class="avatar">
+                        S
+                    </div>
+
+                    <div>
+
+                        <h3>
+                            Sneha
+                        </h3>
+
+                        <p class="status">
+                            Playing UNO
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <button class="inviteBtn">
+                    Watch Match
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>NearUs Login</title>
+
+    <script type="module"
+            src="js/app.js"></script>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, sans-serif;
+        }
+
+        body{
+
+            min-height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #020617,
+                            #0B1120,
+                            #111827
+                    );
+
+            padding:20px;
+
+            overflow:auto;
+        }
+
+        .loginWrapper{
+
+            width:100%;
+            max-width:1180px;
+
+            min-height:680px;
+
+            display:flex;
+
+            border-radius:28px;
+
+            overflow:hidden;
+
+            background:#111827;
+
+            box-shadow:
+                    0 0 50px rgba(139,92,246,0.18);
+        }
+
+        /* LEFT SIDE */
+
+        .leftSide{
+
+            flex:1;
+
+            background:
+                    linear-gradient(
+                            180deg,
+                            #9F67FF,
+                            #6D28D9
+                    );
+
+            padding:55px 50px;
+
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+
+            position:relative;
+
+            overflow:hidden;
+        }
+
+        .leftSide::before{
+
+            content:"";
+
+            position:absolute;
+
+            width:380px;
+            height:380px;
+
+            background:rgba(255,255,255,0.08);
+
+            border-radius:50%;
+
+            bottom:-120px;
+            right:-80px;
+        }
+
+        .leftSide h1{
+
+            color:white;
+
+            font-size:72px;
+
+            line-height:82px;
+
+            font-weight:bold;
+        }
+
+        .leftSide p{
+
+            margin-top:30px;
+
+            color:#F3E8FF;
+
+            font-size:19px;
+
+            line-height:38px;
+
+            max-width:470px;
+        }
+
+        /* RIGHT SIDE */
+
+        .rightSide{
+
+            flex:1;
+
+            background:#020817;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            padding:45px 50px;
+
+            overflow-y:auto;
+        }
+
+        .loginContainer{
+
+            width:100%;
+            max-width:420px;
+        }
+
+        .logo{
+
+            color:white;
+
+            font-size:42px;
+
+            font-weight:bold;
+
+            margin-bottom:25px;
+        }
+
+        .title h1{
+
+            color:white;
+
+            font-size:62px;
+
+            line-height:70px;
+
+            margin-bottom:14px;
+        }
+
+        .title p{
+
+            color:#9CA3AF;
+
+            font-size:18px;
+
+            line-height:34px;
+
+            margin-bottom:30px;
+        }
+
+        /* INPUTS */
+
+        .inputBox{
+
+            margin-bottom:18px;
+        }
+
+        .inputBox label{
+
+            display:block;
+
+            color:white;
+
+            font-size:16px;
+
+            margin-bottom:10px;
+        }
+
+        .inputBox input{
+
+            width:100%;
+
+            height:62px;
+
+            border:none;
+
+            outline:none;
+
+            border-radius:18px;
+
+            background:#1E293B;
+
+            color:white;
+
+            font-size:17px;
+
+            padding:0 20px;
+        }
+
+        .inputBox input::placeholder{
+
+            color:#94A3B8;
+        }
+
+        .forgot{
+
+            text-align:right;
+
+            margin-bottom:22px;
+        }
+
+        .forgot a{
+
+            color:#A855F7;
+
+            text-decoration:none;
+
+            font-size:15px;
+        }
+
+        /* LOGIN BUTTON */
+
+        .loginBtn{
+
+            width:100%;
+
+            height:62px;
+
+            border:none;
+
+            border-radius:18px;
+
+            background:
+                    linear-gradient(
+                            90deg,
+                            #8B5CF6,
+                            #A855F7
+                    );
+
+            color:white;
+
+            font-size:22px;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .loginBtn:hover{
+
+            transform:scale(1.01);
+
+            opacity:0.95;
+        }
+
+        /* DIVIDER */
+
+        .divider{
+
+            display:flex;
+            align-items:center;
+
+            gap:15px;
+
+            margin:24px 0;
+
+            color:#6B7280;
+
+            font-size:15px;
+        }
+
+        .divider div{
+
+            flex:1;
+
+            height:1px;
+
+            background:#374151;
+        }
+
+        /* SOCIAL */
+
+        .socialButtons{
+
+            display:flex;
+
+            gap:16px;
+        }
+
+        .socialBtn{
+
+            flex:1;
+
+            height:58px;
+
+            border:none;
+
+            border-radius:18px;
+
+            background:#1E293B;
+
+            color:white;
+
+            font-size:20px;
+
+            font-weight:bold;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .socialBtn:hover{
+
+            background:#334155;
+        }
+
+        /* BOTTOM */
+
+        .bottomText{
+
+            margin-top:24px;
+
+            text-align:center;
+
+            color:#9CA3AF;
+
+            font-size:15px;
+
+            line-height:26px;
+        }
+
+        .bottomText a{
+
+            color:#A855F7;
+
+            text-decoration:none;
+
+            font-weight:bold;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width:1000px){
+
+            .loginWrapper{
+
+                flex-direction:column;
+
+                max-width:560px;
+            }
+
+            .leftSide{
+
+                min-height:320px;
+            }
+
+            .leftSide h1{
+
+                font-size:56px;
+
+                line-height:66px;
+            }
+
+            .title h1{
+
+                font-size:48px;
+
+                line-height:58px;
+            }
+        }
+
+        @media(max-width:600px){
+
+            body{
+
+                padding:10px;
+            }
+
+            .leftSide,
+            .rightSide{
+
+                padding:35px 28px;
+            }
+
+            .leftSide h1{
+
+                font-size:44px;
+
+                line-height:54px;
+            }
+
+            .leftSide p{
+
+                font-size:16px;
+
+                line-height:30px;
+            }
+
+            .title h1{
+
+                font-size:40px;
+
+                line-height:48px;
+            }
+
+            .logo{
+
+                font-size:34px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="loginWrapper">
+
+    <!-- LEFT -->
+
+    <div class="leftSide">
+
+        <h1>
+            Connect.<br>
+            Talk.<br>
+            Stay Near.
+        </h1>
+
+        <p>
+            NearUs helps friends and couples stay connected
+            through video calls, watch parties, live chat
+            and games.
+        </p>
+
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="rightSide">
+
+        <div class="loginContainer">
+
+            <div class="logo">
+                NearUs
+            </div>
+
+            <div class="title">
+
+                <h1>
+                    Welcome Back
+                </h1>
+
+                <p>
+                    Login and continue your conversations
+                    with friends.
+                </p>
+
+            </div>
+
+            <!-- EMAIL -->
+
+            <div class="inputBox">
+
+                <label>
+                    Email Address
+                </label>
+
+                <input type="email"
+                       id="loginEmail"
+                       placeholder="Enter your email">
+
+            </div>
+
+            <!-- PASSWORD -->
+
+            <div class="inputBox">
+
+                <label>
+                    Password
+                </label>
+
+                <input type="password"
+                       id="loginPassword"
+                       placeholder="Enter your password">
+
+            </div>
+
+            <div class="forgot">
+
+                <a href="#">
+                    Forgot Password?
+                </a>
+
+            </div>
+
+            <!-- LOGIN -->
+
+            <button class="loginBtn"
+                    onclick="loginUser()">
+
+                Login
+
+            </button>
+
+            <!-- DIVIDER -->
+
+            <div class="divider">
+
+                <div></div>
+
+                OR
+
+                <div></div>
+
+            </div>
+
+            <!-- SOCIAL -->
+
+            <div class="socialButtons">
+
+                <button class="socialBtn"
+                        onclick="googleLogin()">
+
+                    Google
+
+                </button>
+
+                <button class="socialBtn">
+
+                    Apple
+
+                </button>
+
+            </div>
+
+            <!-- BOTTOM -->
+
+            <div class="bottomText">
+
+                Don’t have an account?
+
+                <a href="register.html">
+
+                    Register
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

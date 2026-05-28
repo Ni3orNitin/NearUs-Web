@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>NearUs Video Room</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+
+    background:#030712;
+
+    color:white;
+
+    height:100vh;
+
+    overflow:hidden;
+}
+
+.roomContainer{
+
+    display:flex;
+
+    height:100vh;
+}
+
+/* =========================
+   VIDEO SECTION
+========================= */
+
+.videoSection{
+
+    flex:1;
+
+    padding:20px;
+
+    position:relative;
+}
+
+.topBar{
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    margin-bottom:20px;
+}
+
+.roomTitle{
+
+    font-size:28px;
+    font-weight:bold;
+}
+
+.leaveBtn{
+
+    width:120px;
+    height:50px;
+
+    border:none;
+
+    border-radius:15px;
+
+    background:#EF4444;
+
+    color:white;
+
+    font-size:16px;
+    font-weight:bold;
+
+    cursor:pointer;
+}
+
+.videoGrid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:20px;
+
+    height:80vh;
+}
+
+.videoBox{
+
+    background:#111827;
+
+    border-radius:25px;
+
+    overflow:hidden;
+
+    position:relative;
+
+    border:2px solid rgba(255,255,255,0.04);
+}
+
+video{
+
+    width:100%;
+    height:100%;
+
+    object-fit:cover;
+
+    background:black;
+}
+
+.videoLabel{
+
+    position:absolute;
+
+    bottom:15px;
+    left:15px;
+
+    background:rgba(0,0,0,0.6);
+
+    padding:10px 15px;
+
+    border-radius:12px;
+
+    font-size:14px;
+}
+
+/* =========================
+   CONTROLS
+========================= */
+
+.bottomControls{
+
+    position:absolute;
+
+    bottom:20px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    display:flex;
+
+    gap:18px;
+
+    background:rgba(17,24,39,0.9);
+
+    padding:14px 18px;
+
+    border-radius:25px;
+
+    backdrop-filter:blur(10px);
+}
+
+.controlBtn{
+
+    width:65px;
+    height:65px;
+
+    border:none;
+
+    border-radius:50%;
+
+    background:#1F2937;
+
+    color:white;
+
+    font-size:24px;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+.controlBtn:hover{
+
+    transform:scale(1.08);
+
+    background:#374151;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:900px){
+
+    .videoGrid{
+
+        grid-template-columns:1fr;
+
+        height:auto;
+    }
+
+    body{
+
+        overflow:auto;
+    }
+
+    .roomContainer{
+
+        height:auto;
+    }
+
+    .videoBox{
+
+        height:300px;
+    }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="roomContainer">
+
+    <div class="videoSection">
+
+        <!-- TOP -->
+
+        <div class="topBar">
+
+            <div class="roomTitle"
+                 id="roomTitle">
+
+                NearUs Room
+
+            </div>
+
+            <button class="leaveBtn"
+                    onclick="window.location.href='home.html'">
+
+                Leave
+
+            </button>
+
+        </div>
+
+        <!-- VIDEO GRID -->
+
+        <div class="videoGrid">
+
+            <!-- LOCAL -->
+
+            <div class="videoBox">
+
+                <video id="localVideo"
+                       autoplay
+                       muted
+                       playsinline>
+                </video>
+
+                <div class="videoLabel">
+                    You
+                </div>
+
+            </div>
+
+            <!-- REMOTE -->
+
+            <div class="videoBox">
+
+                <video id="remoteVideo"
+                       autoplay
+                       playsinline>
+                </video>
+
+                <div class="videoLabel">
+                    Friend
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CONTROLS -->
+
+<div class="bottomControls">
+
+    <button class="controlBtn"
+            id="micBtn">
+
+        🎤
+
+    </button>
+
+    <button class="controlBtn"
+            id="cameraBtn">
+
+        📹
+
+    </button>
+
+    <button class="controlBtn"
+            id="createCallBtn">
+
+        📞
+
+    </button>
+
+    <button class="controlBtn"
+            id="joinCallBtn">
+
+        👥
+
+    </button>
+
+</div>
+
+
+<script type="module">
+
+// IMPORT FIREBASE APP
+
+import "./js/app.js";
+
+import {
+
+    initializeApp
+
+}
+
+from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+
+import {
+
+    getDatabase,
+    ref,
+    set,
+    get,
+    onValue,
+    push
+
+}
+
+from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+
+// ======================================
+// FIREBASE CONFIG
+// ======================================
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyBl_f2bJEjmdTMbyZpfKXbhE7p87yXtHs4",
+
+    authDomain: "nearus-web.firebaseapp.com",
+
+    databaseURL:
+    "https://nearus-web-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId: "nearus-web",
+
+    storageBucket: "nearus-web.firebasestorage.app",
+
+    messagingSenderId: "920428262831",
+
+    appId: "1:920428262831:web:042c145ca0c5724223ab5a"
+
+};
+
+
+// ======================================
+// INITIALIZE
+// ======================================
+
+const app = initializeApp(firebaseConfig);
+
+const database = getDatabase(app);
+
+
+// ======================================
+// ROOM
+// ======================================
+
+const params =
+    new URLSearchParams(window.location.search);
+
+const roomId =
+    params.get("room");
+
+document.getElementById(
+    "roomTitle"
+).innerText = roomId;
+
+
+// ======================================
+// VIDEO ELEMENTS
+// ======================================
+
+const localVideo =
+    document.getElementById("localVideo");
+
+const remoteVideo =
+    document.getElementById("remoteVideo");
+
+
+// ======================================
+// STREAMS
+// ======================================
+
+let localStream;
+
+let remoteStream;
+
+let peerConnection;
+
+
+// ======================================
+// WEBRTC SERVERS
+// ======================================
+
+const servers = {
+
+    iceServers: [
+
+        {
+            urls:
+            "stun:stun.l.google.com:19302"
+        }
+
+    ]
+};
+
+
+// ======================================
+// START CAMERA
+// ======================================
+
+async function startCamera(){
+
+    try{
+
+        localStream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video:true,
+                audio:true
+
+            });
+
+        localVideo.srcObject =
+            localStream;
+
+        createPeerConnection();
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+        alert(
+            "Camera/Microphone Permission Denied"
+        );
+    }
+}
+
+startCamera();
+
+
+// ======================================
+// CREATE PEER
+// ======================================
+
+function createPeerConnection(){
+
+    peerConnection =
+        new RTCPeerConnection(servers);
+
+    remoteStream =
+        new MediaStream();
+
+    remoteVideo.srcObject =
+        remoteStream;
+
+
+    // LOCAL TRACKS
+
+    localStream
+        .getTracks()
+        .forEach(track => {
+
+            peerConnection.addTrack(
+                track,
+                localStream
+            );
+
+        });
+
+
+    // REMOTE TRACKS
+
+    peerConnection.ontrack =
+        event => {
+
+            event.streams[0]
+                .getTracks()
+                .forEach(track => {
+
+                    remoteStream.addTrack(track);
+
+                });
+        };
+
+
+    // ICE CANDIDATES
+
+    peerConnection.onicecandidate =
+        async event => {
+
+            if(event.candidate){
+
+                await push(
+
+                    ref(
+                        database,
+                        "rooms/" +
+                        roomId +
+                        "/candidates"
+                    ),
+
+                    event.candidate.toJSON()
+                );
+            }
+        };
+}
+
+
+// ======================================
+// CREATE CALL
+// ======================================
+
+async function createCall(){
+
+    const offer =
+        await peerConnection.createOffer();
+
+    await peerConnection.setLocalDescription(
+        offer
+    );
+
+    await set(
+
+        ref(database, "calls/" + roomId),
+
+        {
+
+            offer: {
+
+                type: offer.type,
+
+                sdp: offer.sdp
+
+            }
+
+        }
+    );
+
+    // LISTEN ANSWER
+
+    onValue(
+
+        ref(database, "calls/" + roomId),
+
+        async snapshot => {
+
+            const data = snapshot.val();
+
+            if(
+                data?.answer &&
+                !peerConnection.currentRemoteDescription
+            ){
+
+                const answer =
+                    new RTCSessionDescription(
+                        data.answer
+                    );
+
+                await peerConnection
+                    .setRemoteDescription(answer);
+            }
+        }
+    );
+
+    alert("Call Created");
+}
+
+
+// ======================================
+// JOIN CALL
+// ======================================
+
+async function joinCall(){
+
+    const callRef =
+        ref(database, "calls/" + roomId);
+
+    const snapshot =
+        await get(callRef);
+
+    const callData =
+        snapshot.val();
+
+    if(!callData){
+
+        alert("Call not found");
+
+        return;
+    }
+
+    await peerConnection.setRemoteDescription(
+
+        new RTCSessionDescription(
+            callData.offer
+        )
+    );
+
+    const answer =
+        await peerConnection.createAnswer();
+
+    await peerConnection.setLocalDescription(
+        answer
+    );
+
+    await set(callRef, {
+
+        offer: callData.offer,
+
+        answer: {
+
+            type: answer.type,
+
+            sdp: answer.sdp
+
+        }
+
+    });
+
+    alert("Joined Call");
+}
+
+
+// ======================================
+// BUTTON EVENTS
+// ======================================
+
+document.getElementById(
+    "createCallBtn"
+).onclick = createCall;
+
+document.getElementById(
+    "joinCallBtn"
+).onclick = joinCall;
+
+
+// ======================================
+// MIC CONTROL
+// ======================================
+
+let micEnabled = true;
+
+document.getElementById(
+    "micBtn"
+).onclick = () => {
+
+    micEnabled = !micEnabled;
+
+    localStream
+        .getAudioTracks()[0]
+        .enabled = micEnabled;
+};
+
+
+// ======================================
+// CAMERA CONTROL
+// ======================================
+
+let cameraEnabled = true;
+
+document.getElementById(
+    "cameraBtn"
+).onclick = () => {
+
+    cameraEnabled = !cameraEnabled;
+
+    localStream
+        .getVideoTracks()[0]
+        .enabled = cameraEnabled;
+};
+
+</script>
+
+</body>
+</html>

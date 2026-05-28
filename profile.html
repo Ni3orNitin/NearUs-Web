@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>NearUs Profile</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        .profileContainer{
+            padding:35px;
+            min-height:100vh;
+        }
+
+        /* TOP PROFILE */
+
+        .profileTop{
+            width:100%;
+            background:linear-gradient(
+                    135deg,
+                    #8B5CF6,
+                    #6D28D9
+            );
+
+            border-radius:35px;
+
+            padding:40px;
+
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            flex-wrap:wrap;
+
+            gap:25px;
+        }
+
+        .profileLeft{
+            display:flex;
+            align-items:center;
+            gap:25px;
+        }
+
+        .profileImage{
+            width:130px;
+            height:130px;
+            border-radius:35px;
+
+            background:white;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-size:50px;
+            color:#6D28D9;
+
+            font-weight:bold;
+        }
+
+        .profileInfo h1{
+            font-size:42px;
+        }
+
+        .profileInfo p{
+            margin-top:10px;
+            color:#E5E7EB;
+            line-height:28px;
+        }
+
+        .editBtn{
+            padding:16px 28px;
+            border:none;
+            border-radius:18px;
+
+            background:white;
+            color:#6D28D9;
+
+            font-size:15px;
+            font-weight:bold;
+
+            cursor:pointer;
+        }
+
+        /* STATS */
+
+        .statsGrid{
+            margin-top:35px;
+
+            display:grid;
+
+            grid-template-columns:
+                    repeat(auto-fit,minmax(220px,1fr));
+
+            gap:25px;
+        }
+
+        .statCard{
+            background:#111827;
+
+            border-radius:28px;
+
+            padding:28px;
+        }
+
+        .statCard h2{
+            font-size:38px;
+            margin-top:12px;
+        }
+
+        .statCard p{
+            color:#9CA3AF;
+            margin-top:8px;
+        }
+
+        /* ACTIVITY */
+
+        .activitySection{
+            margin-top:45px;
+        }
+
+        .activitySection h2{
+            margin-bottom:25px;
+            font-size:32px;
+        }
+
+        .activityCard{
+            background:#111827;
+
+            border-radius:28px;
+
+            padding:25px;
+
+            margin-bottom:20px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            flex-wrap:wrap;
+
+            gap:15px;
+        }
+
+        .activityLeft{
+            display:flex;
+            align-items:center;
+            gap:20px;
+        }
+
+        .activityIcon{
+            width:65px;
+            height:65px;
+
+            border-radius:20px;
+
+            background:#8B5CF6;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-size:28px;
+        }
+
+        .activityText h3{
+            margin-bottom:8px;
+        }
+
+        .activityText p{
+            color:#9CA3AF;
+        }
+
+        .joinBtn{
+            padding:14px 24px;
+
+            border:none;
+            border-radius:16px;
+
+            background:#8B5CF6;
+            color:white;
+
+            cursor:pointer;
+        }
+
+        /* SETTINGS */
+
+        .settingsSection{
+            margin-top:45px;
+        }
+
+        .settingsSection h2{
+            margin-bottom:25px;
+            font-size:32px;
+        }
+
+        .settingItem{
+            background:#111827;
+
+            border-radius:24px;
+
+            padding:22px;
+
+            margin-bottom:18px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            cursor:pointer;
+
+            transition:0.3s;
+        }
+
+        .settingItem:hover{
+            transform:translateX(5px);
+        }
+
+        .settingLeft{
+            display:flex;
+            align-items:center;
+            gap:18px;
+        }
+
+        .settingIcon{
+            width:55px;
+            height:55px;
+
+            border-radius:18px;
+
+            background:#1F2937;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            font-size:22px;
+        }
+
+        .logout{
+            background:#7F1D1D;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:768px){
+
+            .profileContainer{
+                padding:20px;
+            }
+
+            .profileTop{
+                flex-direction:column;
+                align-items:flex-start;
+            }
+
+            .profileInfo h1{
+                font-size:34px;
+            }
+
+            .activityCard{
+                flex-direction:column;
+                align-items:flex-start;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="profileContainer">
+
+    <!-- PROFILE -->
+
+    <div class="profileTop">
+
+        <div class="profileLeft">
+
+            <div class="profileImage">
+                N
+            </div>
+
+            <div class="profileInfo">
+
+                <h1>
+                    Nitin Kumar
+                </h1>
+
+                <p>
+                    Stay close, always ✨
+                    <br>
+                    Android Developer • Creator
+                </p>
+
+            </div>
+
+        </div>
+
+        <button class="editBtn">
+            Edit Profile
+        </button>
+
+    </div>
+
+    <!-- STATS -->
+
+    <div class="statsGrid">
+
+        <div class="statCard">
+
+            <div style="font-size:35px;">
+                🎥
+            </div>
+
+            <h2>
+                128
+            </h2>
+
+            <p>
+                Video Calls
+            </p>
+
+        </div>
+
+        <div class="statCard">
+
+            <div style="font-size:35px;">
+                🍿
+            </div>
+
+            <h2>
+                42
+            </h2>
+
+            <p>
+                Watch Parties
+            </p>
+
+        </div>
+
+        <div class="statCard">
+
+            <div style="font-size:35px;">
+                🎮
+            </div>
+
+            <h2>
+                65
+            </h2>
+
+            <p>
+                Games Played
+            </p>
+
+        </div>
+
+        <div class="statCard">
+
+            <div style="font-size:35px;">
+                👥
+            </div>
+
+            <h2>
+                16
+            </h2>
+
+            <p>
+                Friends Added
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- ACTIVITY -->
+
+    <div class="activitySection">
+
+        <h2>
+            Recent Activity
+        </h2>
+
+        <div class="activityCard">
+
+            <div class="activityLeft">
+
+                <div class="activityIcon">
+                    🎬
+                </div>
+
+                <div class="activityText">
+
+                    <h3>
+                        Movie Night
+                    </h3>
+
+                    <p>
+                        Watched Interstellar with friends
+                    </p>
+
+                </div>
+
+            </div>
+
+            <button class="joinBtn">
+                Rejoin
+            </button>
+
+        </div>
+
+        <div class="activityCard">
+
+            <div class="activityLeft">
+
+                <div class="activityIcon">
+                    🎮
+                </div>
+
+                <div class="activityText">
+
+                    <h3>
+                        UNO Match
+                    </h3>
+
+                    <p>
+                        Multiplayer game with 5 friends
+                    </p>
+
+                </div>
+
+            </div>
+
+            <button class="joinBtn">
+                Play Again
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- SETTINGS -->
+
+    <div class="settingsSection">
+
+        <h2>
+            Settings
+        </h2>
+
+        <div class="settingItem">
+
+            <div class="settingLeft">
+
+                <div class="settingIcon">
+                    🔔
+                </div>
+
+                <div>
+
+                    <h3>
+                        Notifications
+                    </h3>
+
+                    <p style="color:#9CA3AF;">
+                        Manage alerts & sounds
+                    </p>
+
+                </div>
+
+            </div>
+
+            <span>›</span>
+
+        </div>
+
+        <div class="settingItem">
+
+            <div class="settingLeft">
+
+                <div class="settingIcon">
+                    🎨
+                </div>
+
+                <div>
+
+                    <h3>
+                        Appearance
+                    </h3>
+
+                    <p style="color:#9CA3AF;">
+                        Dark mode & themes
+                    </p>
+
+                </div>
+
+            </div>
+
+            <span>›</span>
+
+        </div>
+
+        <div class="settingItem logout">
+
+            <div class="settingLeft">
+
+                <div class="settingIcon">
+                    🚪
+                </div>
+
+                <div>
+
+                    <h3>
+                        Logout
+                    </h3>
+
+                    <p style="color:#E5E7EB;">
+                        Exit your account
+                    </p>
+
+                </div>
+
+            </div>
+
+            <span>›</span>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

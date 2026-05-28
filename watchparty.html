@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>NearUs Watch Party</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        .watchContainer{
+            padding:35px;
+            min-height:100vh;
+        }
+
+        .topSection{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .topSection h1{
+            font-size:38px;
+        }
+
+        .topSection p{
+            color:#9CA3AF;
+            margin-top:8px;
+        }
+
+        .partyBtn{
+            padding:15px 28px;
+            border:none;
+            border-radius:16px;
+            background:#8B5CF6;
+            color:white;
+            font-size:15px;
+            cursor:pointer;
+        }
+
+        /* VIDEO PLAYER */
+
+        .moviePlayer{
+            width:100%;
+            height:520px;
+            background:#111827;
+            border-radius:35px;
+            margin-top:30px;
+            overflow:hidden;
+            position:relative;
+        }
+
+        .moviePlayer iframe{
+            width:100%;
+            height:100%;
+            border:none;
+        }
+
+        /* WATCH INFO */
+
+        .watchInfo{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-top:25px;
+            gap:20px;
+            flex-wrap:wrap;
+        }
+
+        .movieCard{
+            flex:1;
+            min-width:280px;
+            background:#111827;
+            padding:25px;
+            border-radius:28px;
+        }
+
+        .movieCard h2{
+            font-size:28px;
+        }
+
+        .movieCard p{
+            color:#9CA3AF;
+            margin-top:15px;
+            line-height:28px;
+        }
+
+        /* FRIENDS */
+
+        .friendsCard{
+            width:320px;
+            background:#111827;
+            padding:25px;
+            border-radius:28px;
+        }
+
+        .friend{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-top:18px;
+            background:#1F2937;
+            padding:14px;
+            border-radius:18px;
+        }
+
+        .friendLeft{
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .avatar{
+            width:45px;
+            height:45px;
+            border-radius:14px;
+            background:#8B5CF6;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-weight:bold;
+        }
+
+        .online{
+            color:#22C55E;
+            font-size:14px;
+        }
+
+        /* CHAT */
+
+        .partyChat{
+            margin-top:35px;
+            background:#111827;
+            border-radius:30px;
+            padding:25px;
+        }
+
+        .partyChat h2{
+            margin-bottom:25px;
+        }
+
+        .chatMsg{
+            background:#1F2937;
+            padding:15px;
+            border-radius:18px;
+            margin-bottom:15px;
+        }
+
+        .chatMsg.you{
+            background:#8B5CF6;
+        }
+
+        .chatInput{
+            display:flex;
+            gap:15px;
+            margin-top:20px;
+        }
+
+        .chatInput input{
+            flex:1;
+            padding:16px;
+            border:none;
+            border-radius:18px;
+            background:#1F2937;
+            color:white;
+        }
+
+        .chatInput button{
+            width:110px;
+            border:none;
+            border-radius:18px;
+            background:#8B5CF6;
+            color:white;
+            cursor:pointer;
+        }
+
+        /* CONTROLS */
+
+        .controls{
+            display:flex;
+            justify-content:center;
+            gap:20px;
+            margin-top:35px;
+            flex-wrap:wrap;
+        }
+
+        .controlBtn{
+            width:75px;
+            height:75px;
+            border:none;
+            border-radius:24px;
+            background:#111827;
+            color:white;
+            font-size:26px;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        .controlBtn:hover{
+            transform:scale(1.08);
+        }
+
+        .leaveBtn{
+            background:#EF4444;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:900px){
+
+            .watchContainer{
+                padding:20px;
+            }
+
+            .moviePlayer{
+                height:280px;
+            }
+
+            .friendsCard{
+                width:100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="watchContainer">
+
+    <!-- TOP -->
+
+    <div class="topSection">
+
+        <div>
+
+            <h1>
+                🍿 Watch Party
+            </h1>
+
+            <p>
+                Watch together in sync with friends
+            </p>
+
+        </div>
+
+        <button class="partyBtn">
+            Invite Friends
+        </button>
+
+    </div>
+
+    <!-- PLAYER -->
+
+    <div class="moviePlayer">
+
+        <iframe
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ">
+
+        </iframe>
+
+    </div>
+
+    <!-- INFO -->
+
+    <div class="watchInfo">
+
+        <!-- MOVIE -->
+
+        <div class="movieCard">
+
+            <h2>
+                Interstellar
+            </h2>
+
+            <p>
+                A team of explorers travel through
+                a wormhole in space in an attempt
+                to ensure humanity's survival.
+            </p>
+
+        </div>
+
+        <!-- FRIENDS -->
+
+        <div class="friendsCard">
+
+            <h2>
+                Watching With
+            </h2>
+
+            <div class="friend">
+
+                <div class="friendLeft">
+
+                    <div class="avatar">
+                        A
+                    </div>
+
+                    <div>
+
+                        <h4>Aryan</h4>
+
+                        <p class="online">
+                            Online
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <span>🎬</span>
+
+            </div>
+
+            <div class="friend">
+
+                <div class="friendLeft">
+
+                    <div class="avatar">
+                        R
+                    </div>
+
+                    <div>
+
+                        <h4>Rohan</h4>
+
+                        <p class="online">
+                            Online
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <span>🍿</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CHAT -->
+
+    <div class="partyChat">
+
+        <h2>
+            Live Reactions
+        </h2>
+
+        <div class="chatMsg">
+            Aryan: This scene is insane 🔥
+        </div>
+
+        <div class="chatMsg you">
+            You: Cinematography is crazy
+        </div>
+
+        <div class="chatInput">
+
+            <input type="text"
+                   placeholder="Send reaction...">
+
+            <button>
+                Send
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- CONTROLS -->
+
+    <div class="controls">
+
+        <button class="controlBtn">
+            ⏸
+        </button>
+
+        <button class="controlBtn">
+            🔊
+        </button>
+
+        <button class="controlBtn">
+            🎤
+        </button>
+
+        <button class="controlBtn">
+            📷
+        </button>
+
+        <button class="controlBtn leaveBtn">
+            ❌
+        </button>
+
+    </div>
+
+</div>
+
+</body>
+</html>

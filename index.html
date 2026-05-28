@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>NearUs</title>
+
+    <link rel="stylesheet"
+          href="css/style.css">
+
+    <style>
+
+        body{
+            overflow-x:hidden;
+        }
+
+        /* NAVBAR */
+
+        .navbar{
+
+            width:100%;
+
+            padding:25px 60px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+
+            position:fixed;
+            top:0;
+
+            z-index:1000;
+
+            background:
+                    rgba(5,8,22,0.7);
+
+            backdrop-filter:blur(12px);
+        }
+
+        .logo{
+
+            font-size:34px;
+            font-weight:bold;
+
+            color:white;
+        }
+
+        .navButtons{
+
+            display:flex;
+            gap:18px;
+        }
+
+        .loginBtn{
+
+            padding:13px 24px;
+
+            border:1px solid #8B5CF6;
+
+            border-radius:16px;
+
+            background:transparent;
+
+            color:white;
+
+            cursor:pointer;
+        }
+
+        .startBtn{
+
+            padding:13px 24px;
+
+            border:none;
+
+            border-radius:16px;
+
+            background:#8B5CF6;
+
+            color:white;
+
+            cursor:pointer;
+        }
+
+        /* HERO */
+
+        .hero{
+
+            min-height:100vh;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            padding:120px 60px 60px;
+
+            position:relative;
+        }
+
+        .hero::before{
+
+            content:"";
+
+            position:absolute;
+
+            width:700px;
+            height:700px;
+
+            background:#8B5CF6;
+
+            filter:blur(220px);
+
+            opacity:0.18;
+
+            border-radius:50%;
+
+            top:-150px;
+            right:-100px;
+        }
+
+        .heroContent{
+
+            flex:1;
+            position:relative;
+            z-index:2;
+        }
+
+        .heroContent h1{
+
+            font-size:85px;
+            line-height:100px;
+        }
+
+        .gradient{
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #8B5CF6,
+                            #EC4899
+                    );
+
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+        }
+
+        .heroContent p{
+
+            margin-top:30px;
+
+            max-width:650px;
+
+            color:#9CA3AF;
+
+            line-height:34px;
+
+            font-size:20px;
+        }
+
+        .heroButtons{
+
+            margin-top:40px;
+
+            display:flex;
+            gap:20px;
+
+            flex-wrap:wrap;
+        }
+
+        .heroPrimary{
+
+            padding:18px 35px;
+
+            border:none;
+
+            border-radius:18px;
+
+            background:#8B5CF6;
+
+            color:white;
+
+            font-size:16px;
+
+            cursor:pointer;
+        }
+
+        .heroSecondary{
+
+            padding:18px 35px;
+
+            border:1px solid #374151;
+
+            border-radius:18px;
+
+            background:transparent;
+
+            color:white;
+
+            font-size:16px;
+
+            cursor:pointer;
+        }
+
+        /* MOCKUP */
+
+        .heroMockup{
+
+            flex:1;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            position:relative;
+            z-index:2;
+        }
+
+        .phone{
+
+            width:320px;
+            height:650px;
+
+            background:#111827;
+
+            border-radius:45px;
+
+            padding:22px;
+
+            border:2px solid #1F2937;
+
+            box-shadow:
+                    0 0 60px rgba(139,92,246,0.35);
+
+            animation:float 4s ease-in-out infinite;
+        }
+
+        @keyframes float{
+
+            0%{
+                transform:translateY(0px);
+            }
+
+            50%{
+                transform:translateY(-18px);
+            }
+
+            100%{
+                transform:translateY(0px);
+            }
+
+        }
+
+        .phoneScreen{
+
+            width:100%;
+            height:100%;
+
+            border-radius:30px;
+
+            overflow:hidden;
+
+            background:
+                    linear-gradient(
+                            180deg,
+                            #0B1120,
+                            #050816
+                    );
+
+            padding:25px;
+        }
+
+        .miniTop{
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .miniProfile{
+
+            width:55px;
+            height:55px;
+
+            border-radius:18px;
+
+            background:#8B5CF6;
+        }
+
+        .miniCall{
+
+            width:65px;
+            height:40px;
+
+            border-radius:14px;
+
+            background:#8B5CF6;
+        }
+
+        .videoBox{
+
+            margin-top:30px;
+
+            height:220px;
+
+            border-radius:28px;
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #8B5CF6,
+                            #6D28D9
+                    );
+        }
+
+        .chatBubble{
+
+            margin-top:22px;
+
+            width:75%;
+            height:60px;
+
+            border-radius:22px;
+
+            background:#1F2937;
+        }
+
+        .chatBubble.right{
+
+            margin-left:auto;
+
+            background:#8B5CF6;
+        }
+
+        .bottomControls{
+
+            margin-top:35px;
+
+            display:flex;
+            justify-content:center;
+            gap:18px;
+        }
+
+        .control{
+
+            width:65px;
+            height:65px;
+
+            border-radius:22px;
+
+            background:#1F2937;
+        }
+
+        /* FEATURES */
+
+        .features{
+
+            padding:90px 60px;
+        }
+
+        .sectionTitle{
+
+            text-align:center;
+        }
+
+        .sectionTitle h1{
+
+            font-size:60px;
+        }
+
+        .sectionTitle p{
+
+            margin-top:18px;
+
+            color:#9CA3AF;
+
+            font-size:18px;
+        }
+
+        .featuresGrid{
+
+            margin-top:60px;
+
+            display:grid;
+
+            grid-template-columns:
+                    repeat(auto-fit,minmax(280px,1fr));
+
+            gap:28px;
+        }
+
+        .featureCard{
+
+            background:#111827;
+
+            padding:35px;
+
+            border-radius:32px;
+
+            transition:0.3s;
+        }
+
+        .featureCard:hover{
+
+            transform:translateY(-10px);
+
+            box-shadow:
+                    0 0 30px rgba(139,92,246,0.25);
+        }
+
+        .featureIcon{
+
+            width:80px;
+            height:80px;
+
+            border-radius:24px;
+
+            background:#8B5CF6;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            font-size:35px;
+        }
+
+        .featureCard h2{
+
+            margin-top:28px;
+            margin-bottom:18px;
+        }
+
+        .featureCard p{
+
+            color:#9CA3AF;
+            line-height:30px;
+        }
+
+        /* CTA */
+
+        .cta{
+
+            padding:90px 60px;
+        }
+
+        .ctaBox{
+
+            background:
+                    linear-gradient(
+                            135deg,
+                            #8B5CF6,
+                            #6D28D9
+                    );
+
+            border-radius:40px;
+
+            padding:70px;
+
+            text-align:center;
+        }
+
+        .ctaBox h1{
+
+            font-size:60px;
+        }
+
+        .ctaBox p{
+
+            margin-top:20px;
+
+            color:#E5E7EB;
+
+            line-height:32px;
+        }
+
+        .ctaBox button{
+
+            margin-top:35px;
+
+            padding:18px 40px;
+
+            border:none;
+
+            border-radius:18px;
+
+            background:white;
+
+            color:#6D28D9;
+
+            font-size:16px;
+            font-weight:bold;
+
+            cursor:pointer;
+        }
+
+        /* MOBILE */
+
+        @media(max-width:1000px){
+
+            .hero{
+                flex-direction:column;
+                gap:60px;
+            }
+
+            .heroContent h1{
+
+                font-size:58px;
+                line-height:74px;
+            }
+
+        }
+
+        @media(max-width:768px){
+
+            .navbar{
+                padding:20px;
+            }
+
+            .hero{
+                padding:120px 20px 60px;
+            }
+
+            .heroContent h1{
+
+                font-size:46px;
+                line-height:60px;
+            }
+
+            .features,
+            .cta{
+                padding:70px 20px;
+            }
+
+            .sectionTitle h1,
+            .ctaBox h1{
+
+                font-size:42px;
+            }
+
+            .ctaBox{
+                padding:45px 25px;
+            }
+
+            .phone{
+                width:100%;
+                max-width:320px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="navbar">
+
+    <div class="logo">
+        NearUs
+    </div>
+
+    <div class="navButtons">
+
+        <button class="loginBtn"
+                onclick="window.location.href='login.html'">
+
+            Login
+
+        </button>
+
+        <button class="startBtn"
+                onclick="window.location.href='register.html'">
+
+            Get Started
+
+        </button>
+
+    </div>
+
+</div>
+
+<!-- HERO -->
+
+<section class="hero">
+
+    <div class="heroContent">
+
+        <h1>
+
+            Stay
+            <span class="gradient">
+                Near
+            </span>
+
+            Even When
+            <span class="gradient">
+                Far Away
+            </span>
+
+        </h1>
+
+        <p>
+
+            NearUs is a modern social communication platform
+            where friends can video call, watch movies together,
+            play multiplayer games, chat instantly,
+            and stay connected anytime.
+
+        </p>
+
+        <div class="heroButtons">
+
+            <button class="heroPrimary"
+                    onclick="window.location.href='register.html'">
+
+                Start Free
+
+            </button>
+
+            <button class="heroSecondary"
+                    onclick="window.location.href='home.html'">
+
+                Explore App
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- PHONE -->
+
+    <div class="heroMockup">
+
+        <div class="phone">
+
+            <div class="phoneScreen">
+
+                <div class="miniTop">
+
+                    <div class="miniProfile"></div>
+
+                    <div class="miniCall"></div>
+
+                </div>
+
+                <div class="videoBox"></div>
+
+                <div class="chatBubble"></div>
+
+                <div class="chatBubble right"></div>
+
+                <div class="chatBubble"></div>
+
+                <div class="bottomControls">
+
+                    <div class="control"></div>
+
+                    <div class="control"></div>
+
+                    <div class="control"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- FEATURES -->
+
+<section class="features">
+
+    <div class="sectionTitle">
+
+        <h1>
+            Everything In One Place
+        </h1>
+
+        <p>
+            NearUs combines communication, entertainment,
+            gaming and social connection into one platform.
+        </p>
+
+    </div>
+
+    <div class="featuresGrid">
+
+        <!-- CARD -->
+
+        <div class="featureCard">
+
+            <div class="featureIcon">
+                🎥
+            </div>
+
+            <h2>
+                HD Video Calls
+            </h2>
+
+            <p>
+
+                Connect instantly with crystal-clear
+                voice and video rooms.
+
+            </p>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="featureCard">
+
+            <div class="featureIcon">
+                🍿
+            </div>
+
+            <h2>
+                Watch Parties
+            </h2>
+
+            <p>
+
+                Watch movies and videos together
+                in synchronized rooms.
+
+            </p>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="featureCard">
+
+            <div class="featureIcon">
+                🎮
+            </div>
+
+            <h2>
+                Multiplayer Games
+            </h2>
+
+            <p>
+
+                Play fun games with friends
+                while staying connected on calls.
+
+            </p>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="featureCard">
+
+            <div class="featureIcon">
+                💬
+            </div>
+
+            <h2>
+                Smart Chat
+            </h2>
+
+            <p>
+
+                Modern messaging with reactions,
+                media sharing and voice notes.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- CTA -->
+
+<section class="cta">
+
+    <div class="ctaBox">
+
+        <h1>
+            Start Connecting Today
+        </h1>
+
+        <p>
+
+            Build rooms, call friends,
+            watch together and create memories
+            with NearUs.
+
+        </p>
+
+        <button onclick="window.location.href='register.html'">
+
+            Create Free Account
+
+        </button>
+
+    </div>
+
+</section>
+
+</body>
+</html>
