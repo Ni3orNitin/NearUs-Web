@@ -1,332 +1,94 @@
-/* =========================================
-   WEBRTC VIDEO CALL
-========================================= */
-
 const localVideo =
 document.getElementById("localVideo");
 
 const remoteVideo =
 document.getElementById("remoteVideo");
 
-let localStream;
-let remoteStream;
-
-let peerConnection;
-
-const servers = {
-
-    iceServers: [
-
-        {
-            urls: [
-                "stun:stun1.l.google.com:19302",
-                "stun:stun2.l.google.com:19302"
-            ]
-        }
-
-    ]
-};
+const activityWindow =
+document.querySelector(".activityWindow");
 
 
 
-/* =========================================
-   ROOM ID
-========================================= */
+/* ROOM */
 
 const params =
 new URLSearchParams(window.location.search);
 
 const roomId =
-params.get("room");
+params.get("room") || "demo-room";
 
 
 
-/* =========================================
-   START CAMERA + MIC
-========================================= */
+/* ROOM UI */
+
+const roomCodeText =
+document.getElementById("roomCode");
+
+const copyRoomBtn =
+document.getElementById("copyRoomBtn");
+
+roomCodeText.innerText =
+roomId;
+
+
+
+copyRoomBtn.addEventListener("click", async () => {
+
+    await navigator.clipboard.writeText(
+        window.location.href
+    );
+
+    copyRoomBtn.innerText =
+    "Copied!";
+
+    setTimeout(() => {
+
+        copyRoomBtn.innerText =
+        "Copy Link";
+
+    },2000);
+
+});
+
+
+
+/* CAMERA */
 
 async function startVideo(){
 
-    localStream =
-    await navigator.mediaDevices.getUserMedia({
+    try{
 
-        video:true,
-        audio:true
+        const stream =
+        await navigator
+        .mediaDevices
+        .getUserMedia({
 
-    });
+            video:true,
+            audio:true
 
-    remoteStream =
-    new MediaStream();
+        });
 
-    localVideo.srcObject =
-    localStream;
+        localVideo.srcObject =
+        stream;
 
-    remoteVideo.srcObject =
-    remoteStream;
+    }
+
+    catch{
+
+        alert("Camera access denied");
+
+    }
+
 }
 
 startVideo();
 
 
 
-/* =========================================
-   CREATE PEER CONNECTION
-========================================= */
-
-function createPeerConnection(){
-
-    peerConnection =
-    new RTCPeerConnection(servers);
-
-
-
-    /* SEND TRACKS */
-
-    localStream.getTracks().forEach(track => {
-
-        peerConnection.addTrack(
-
-            track,
-            localStream
-
-        );
-
-    });
-
-
-
-    /* RECEIVE TRACKS */
-
-    peerConnection.ontrack = event => {
-
-        event.streams[0]
-        .getTracks()
-        .forEach(track => {
-
-            remoteStream.addTrack(track);
-
-        });
-
-    };
-
-
-
-    /* SEND ICE */
-
-    peerConnection.onicecandidate =
-    async event => {
-
-        if(event.candidate){
-
-            await firebasePush(
-
-                firebaseRef(
-                    database,
-                    "rooms/" +
-                    roomId +
-                    "/candidates"
-                ),
-
-                JSON.stringify(
-                    event.candidate
-                )
-
-            );
-
-        }
-
-    };
-}
-
-
-
-/* =========================================
-   CREATE CALL
-========================================= */
-
-async function createCall(){
-
-    createPeerConnection();
-
-
-
-    const offer =
-    await peerConnection.createOffer();
-
-    await peerConnection
-    .setLocalDescription(offer);
-
-
-
-    await firebaseSet(
-
-        firebaseRef(
-            database,
-            "rooms/" +
-            roomId +
-            "/offer"
-        ),
-
-        JSON.stringify(offer)
-
-    );
-
-
-
-    firebaseOnValue(
-
-        firebaseRef(
-            database,
-            "rooms/" +
-            roomId +
-            "/answer"
-        ),
-
-        async snapshot => {
-
-            const data =
-            snapshot.val();
-
-            if(
-                data &&
-                !peerConnection
-                .currentRemoteDescription
-            ){
-
-                const answer =
-                JSON.parse(data);
-
-                await peerConnection
-                .setRemoteDescription(
-
-                    new RTCSessionDescription(
-                        answer
-                    )
-
-                );
-
-            }
-
-        }
-
-    );
-}
-
-
-
-/* =========================================
-   ANSWER CALL
-========================================= */
-
-async function answerCall(){
-
-    createPeerConnection();
-
-
-
-    const offerSnapshot =
-    await firebaseGet(
-
-        firebaseRef(
-            database,
-            "rooms/" +
-            roomId +
-            "/offer"
-        )
-
-    );
-
-
-
-    const offer =
-    JSON.parse(
-        offerSnapshot.val()
-    );
-
-
-
-    await peerConnection
-    .setRemoteDescription(
-
-        new RTCSessionDescription(
-            offer
-        )
-
-    );
-
-
-
-    const answer =
-    await peerConnection
-    .createAnswer();
-
-    await peerConnection
-    .setLocalDescription(answer);
-
-
-
-    await firebaseSet(
-
-        firebaseRef(
-            database,
-            "rooms/" +
-            roomId +
-            "/answer"
-        ),
-
-        JSON.stringify(answer)
-
-    );
-
-}
-
-
-
-/* =========================================
-   AUTO CONNECT
-========================================= */
-
-setTimeout(async () => {
-
-    const roomSnapshot =
-    await firebaseGet(
-
-        firebaseRef(
-            database,
-            "rooms/" +
-            roomId +
-            "/offer"
-        )
-
-    );
-
-
-
-    if(roomSnapshot.exists()){
-
-        answerCall();
-
-    }
-
-    else{
-
-        createCall();
-
-    }
-
-},2000);
-
-
-
-/* =========================================
-   FEATURE CARDS
-========================================= */
+/* FEATURES */
 
 const featureCards =
 document.querySelectorAll(".featureCard");
-
-const activityWindow =
-document.querySelector(".activityWindow");
 
 
 
@@ -341,30 +103,7 @@ featureCards.forEach(card => {
 
 
 
-        /* RESET ACTIVE */
-
-        featureCards.forEach(c => {
-
-            c.style.background =
-            "rgba(20,27,52,0.72)";
-
-            c.style.borderColor =
-            "rgba(255,255,255,0.06)";
-        });
-
-
-
-        card.style.background =
-        "#1B2444";
-
-        card.style.borderColor =
-        "#8B5CF6";
-
-
-
-        /* =========================================
-           WATCH PARTY
-        ========================================= */
+        /* WATCH PARTY */
 
         if(title === "Watch Party"){
 
@@ -372,30 +111,12 @@ featureCards.forEach(card => {
 
             <div class="watchPartyUI">
 
-                <div class="playlistHeader">
-
-                    <h2>
-                        🎵 Shared Playlist
-                    </h2>
-
-                    <p>
-                        Enjoy synced music together
-                    </p>
-
-                </div>
-
                 <div class="playerArea">
 
                     <iframe
-width="100%"
-height="100%"
-src="https://www.youtube.com/embed/videoseries?list=PLIlng4MI3pW88NAuEBtQlGT4WEAae5NPA"
-title="YouTube video player"
-frameborder="0"
-allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-referrerpolicy="strict-origin-when-cross-origin"
-allowfullscreen>
-</iframe>
+                    src="https://www.youtube.com/embed/videoseries?list=PLIlng4MI3pW88NAuEBtQlGT4WEAae5NPA"
+                    allowfullscreen>
+                    </iframe>
 
                 </div>
 
@@ -406,9 +127,7 @@ allowfullscreen>
 
 
 
-        /* =========================================
-           SCREEN SHARE
-        ========================================= */
+        /* SCREEN SHARE */
 
         else if(title === "Screen Share"){
 
@@ -424,8 +143,6 @@ allowfullscreen>
 
                 });
 
-
-
                 activityWindow.innerHTML = `
 
                 <div class="screenShareWrapper">
@@ -440,14 +157,10 @@ allowfullscreen>
 
                 `;
 
-
-
                 const screenVideo =
                 document.getElementById(
                     "screenVideo"
                 );
-
-
 
                 screenVideo.srcObject =
                 stream;
@@ -464,177 +177,164 @@ allowfullscreen>
         }
 
 
-        /* =========================================
-   GAMES
-========================================= */
 
-else if(title === "Games"){
+        /* GAMES */
 
-    activityWindow.innerHTML = `
+        else if(title === "Games"){
 
-    <div class="gamesUI">
+            activityWindow.innerHTML = `
 
-        <h1 class="gamesTitle">
-            🎮 Game Zone
-        </h1>
+            <div class="gamesUI">
 
-        <div class="gamesGrid">
+                <h1 class="gamesTitle">
+                    🎮 Game Zone
+                </h1>
 
-            <!-- TIC TAC TOE -->
+                <div class="gamesGrid">
 
-            <div class="gameCard">
+                    <div class="gameCard">
 
-                <div class="gameImage ticGame">
-                    ❌
-                </div>
+                        <div class="gameImage">
+                            ❌
+                        </div>
 
-                <div class="gameContent">
+                        <div class="gameContent">
 
-                    <h2>
-                        Tic Tac Toe
-                    </h2>
+                            <h2>
+                                Tic Tac Toe
+                            </h2>
 
-                    <p>
-                        Play multiplayer with friends
-                    </p>
+                            <p>
+                                Play multiplayer with friends
+                            </p>
 
-                    <button
-                    class="playBtn"
-                    id="startTicTacToe">
+                            <button
+                            class="playBtn"
+                            id="startTicTacToe">
 
-                        Play Now
+                                Play Now
 
-                    </button>
+                            </button>
 
-                </div>
+                        </div>
 
-            </div>
+                    </div>
 
 
 
-            <!-- UNO -->
+                    <div class="gameCard">
 
-            <div class="gameCard">
+                        <div class="gameImage">
+                            🃏
+                        </div>
 
-                <div class="gameImage unoGame">
-                    🃏
-                </div>
+                        <div class="gameContent">
 
-                <div class="gameContent">
+                            <h2>
+                                UNO Party
+                            </h2>
 
-                    <h2>
-                        UNO Party
-                    </h2>
+                            <p>
+                                Multiplayer UNO with friends
+                            </p>
 
-                    <p>
-                        Multiplayer UNO with friends
-                    </p>
+                            <button
+                            class="playBtn">
 
-                    <button
-                    class="playBtn">
+                                Coming Soon
 
-                        Coming Soon
+                            </button>
 
-                    </button>
+                        </div>
 
-                </div>
-
-            </div>
+                    </div>
 
 
 
-            <!-- SNAKE -->
+                    <div class="gameCard">
 
-            <div class="gameCard">
+                        <div class="gameImage">
+                            🐍
+                        </div>
 
-                <div class="gameImage snakeGame">
-                    🐍
-                </div>
+                        <div class="gameContent">
 
-                <div class="gameContent">
+                            <h2>
+                                Snake Battle
+                            </h2>
 
-                    <h2>
-                        Snake Battle
-                    </h2>
+                            <p>
+                                Real-time snake challenge
+                            </p>
 
-                    <p>
-                        Real-time snake challenge
-                    </p>
+                            <button
+                            class="playBtn">
 
-                    <button
-                    class="playBtn">
+                                Coming Soon
 
-                        Coming Soon
+                            </button>
 
-                    </button>
+                        </div>
 
-                </div>
-
-            </div>
+                    </div>
 
 
 
-            <!-- QUIZ -->
+                    <div class="gameCard">
 
-            <div class="gameCard">
+                        <div class="gameImage">
+                            🧠
+                        </div>
 
-                <div class="gameImage quizGame">
-                    🧠
-                </div>
+                        <div class="gameContent">
 
-                <div class="gameContent">
+                            <h2>
+                                Quiz Arena
+                            </h2>
 
-                    <h2>
-                        Quiz Arena
-                    </h2>
+                            <p>
+                                Live multiplayer quiz battles
+                            </p>
 
-                    <p>
-                        Live multiplayer quiz battles
-                    </p>
+                            <button
+                            class="playBtn">
 
-                    <button
-                    class="playBtn">
+                                Coming Soon
 
-                        Coming Soon
+                            </button>
 
-                    </button>
+                        </div>
+
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
-
-    </div>
-
-    `;
+            `;
 
 
 
-    /* START TIC TAC TOE */
+            document
+            .getElementById("startTicTacToe")
+            .addEventListener("click", () => {
 
-    document
-    .getElementById("startTicTacToe")
-    .addEventListener("click", () => {
+                activityWindow.innerHTML = `
 
-        activityWindow.innerHTML = `
+                <iframe
+                src="games/tictactoe.html?room=${roomId}"
+                class="gameFrame">
+                </iframe>
 
-        <iframe
-        src="games/tictactoe.html"
-        class="gameFrame">
-        </iframe>
+                `;
 
-        `;
+            });
 
-    });
-
-}
+        }
 
 
 
-        /* =========================================
-           WHITEBOARD
-        ========================================= */
+        /* WHITEBOARD */
 
         else if(title === "Whiteboard"){
 
@@ -654,19 +354,13 @@ else if(title === "Games"){
 
             `;
 
-
-
             const canvas =
             document.getElementById(
                 "whiteboard"
             );
 
-
-
             const ctx =
             canvas.getContext("2d");
-
-
 
             canvas.width =
             activityWindow.clientWidth;
@@ -674,18 +368,13 @@ else if(title === "Games"){
             canvas.height =
             activityWindow.clientHeight;
 
-
-
             let drawing = false;
 
 
 
             canvas.addEventListener(
                 "mousedown",
-                () => {
-
-                    drawing = true;
-                }
+                () => drawing = true
             );
 
 
@@ -697,6 +386,7 @@ else if(title === "Games"){
                     drawing = false;
 
                     ctx.beginPath();
+
                 }
             );
 
@@ -713,20 +403,14 @@ else if(title === "Games"){
 
                 if(!drawing) return;
 
-
-
                 const rect =
                 canvas.getBoundingClientRect();
-
-
 
                 ctx.lineWidth = 4;
 
                 ctx.lineCap = "round";
 
                 ctx.strokeStyle = "#000";
-
-
 
                 ctx.lineTo(
 
@@ -736,13 +420,9 @@ else if(title === "Games"){
 
                 );
 
-
-
                 ctx.stroke();
 
                 ctx.beginPath();
-
-
 
                 ctx.moveTo(
 
@@ -751,6 +431,7 @@ else if(title === "Games"){
                     event.clientY - rect.top
 
                 );
+
             }
 
 
@@ -769,6 +450,7 @@ else if(title === "Games"){
                 );
 
             };
+
         }
 
     });
@@ -777,9 +459,7 @@ else if(title === "Games"){
 
 
 
-/* =========================================
-   MIC BUTTON
-========================================= */
+/* MIC */
 
 const micBtn =
 document.querySelectorAll(".controlBtn")[0];
@@ -793,19 +473,11 @@ micBtn.addEventListener("click", () => {
     micBtn.innerHTML =
     micOn ? "🎤" : "🔇";
 
-
-
-    localStream
-    .getAudioTracks()[0]
-    .enabled = micOn;
-
 });
 
 
 
-/* =========================================
-   CAMERA BUTTON
-========================================= */
+/* CAMERA */
 
 const camBtn =
 document.querySelectorAll(".controlBtn")[1];
@@ -819,19 +491,11 @@ camBtn.addEventListener("click", () => {
     camBtn.innerHTML =
     camOn ? "📹" : "🚫";
 
-
-
-    localStream
-    .getVideoTracks()[0]
-    .enabled = camOn;
-
 });
 
 
 
-/* =========================================
-   EMOJI BUTTON
-========================================= */
+/* EMOJI */
 
 const emojiBtn =
 document.querySelectorAll(".controlBtn")[2];
@@ -839,14 +503,10 @@ document.querySelectorAll(".controlBtn")[2];
 const emojis =
 ["🔥","😂","😍","👏","🎉"];
 
-
-
 emojiBtn.addEventListener("click", () => {
 
     const emoji =
     document.createElement("div");
-
-
 
     emoji.innerText =
     emojis[
@@ -855,8 +515,6 @@ emojiBtn.addEventListener("click", () => {
             emojis.length
         )
     ];
-
-
 
     emoji.style.position =
     "absolute";
@@ -870,16 +528,9 @@ emojiBtn.addEventListener("click", () => {
     emoji.style.fontSize =
     "50px";
 
-    emoji.style.animation =
-    "floatUp 2s linear forwards";
-
-
-
     document.body.appendChild(
         emoji
     );
-
-
 
     setTimeout(() => {
 
@@ -891,9 +542,7 @@ emojiBtn.addEventListener("click", () => {
 
 
 
-/* =========================================
-   LEAVE ROOM
-========================================= */
+/* LEAVE */
 
 document
 .querySelector(".leaveBtn")
@@ -906,18 +555,11 @@ document
 
 
 
-/* =========================================
-   END CALL
-========================================= */
+/* END CALL */
 
 document
 .querySelector(".endCallBtn")
 .addEventListener("click", () => {
-
-    if(peerConnection){
-
-        peerConnection.close();
-    }
 
     alert("Call Ended");
 
@@ -925,38 +567,3 @@ document
     "home.html";
 
 });
-
-
-
-/* =========================
-   REMOTE USER CONNECT
-========================= */
-
-const remoteVideoCard =
-document.getElementById(
-    "remoteVideoCard"
-);
-
-const remoteUserLabel =
-document.getElementById(
-    "remoteUserLabel"
-);
-
-
-
-function showRemoteUser(name){
-
-    remoteVideoCard.style.display =
-    "block";
-
-    remoteUserLabel.innerText =
-    name;
-}
-
-
-
-function hideRemoteUser(){
-
-    remoteVideoCard.style.display =
-    "none";
-}

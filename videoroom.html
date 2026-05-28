@@ -25,9 +25,7 @@ src="js/videoroom.js"></script>
 
 <div class="app">
 
-    <!-- =========================
-         TOP BAR
-    ========================== -->
+    <!-- TOP BAR -->
 
     <div class="topBar">
 
@@ -43,6 +41,34 @@ src="js/videoroom.js"></script>
 
         </div>
 
+
+
+        <!-- ROOM INFO -->
+
+        <div class="roomInfo">
+
+            <div class="roomCodeBox">
+
+                <span>
+                    Room:
+                </span>
+
+                <span id="roomCode">
+                    ----
+                </span>
+
+            </div>
+
+            <button id="copyRoomBtn">
+
+                Copy Link
+
+            </button>
+
+        </div>
+
+
+
         <button class="leaveBtn">
             Leave Room
         </button>
@@ -51,15 +77,11 @@ src="js/videoroom.js"></script>
 
 
 
-    <!-- =========================
-         MAIN LAYOUT
-    ========================== -->
+    <!-- MAIN -->
 
     <div class="mainLayout">
 
-        <!-- =========================
-             ACTIVITY SECTION
-        ========================== -->
+        <!-- ACTIVITY -->
 
         <div class="activitySection">
 
@@ -87,13 +109,9 @@ src="js/videoroom.js"></script>
 
 
 
-        <!-- =========================
-             VIDEO SIDEBAR
-        ========================== -->
+        <!-- VIDEO -->
 
         <div class="videoSidebar">
-
-            <!-- LOCAL USER -->
 
             <div class="videoCard">
 
@@ -112,12 +130,9 @@ src="js/videoroom.js"></script>
 
 
 
-            <!-- REMOTE USER -->
-
             <div
             class="videoCard"
             id="remoteVideoCard"
-
             style="display:none;">
 
                 <video
@@ -130,7 +145,7 @@ src="js/videoroom.js"></script>
                 class="videoLabel"
                 id="remoteUserLabel">
 
-                    Connecting...
+                    Friend
 
                 </div>
 
@@ -142,17 +157,11 @@ src="js/videoroom.js"></script>
 
 
 
-    <!-- =========================
-         BOTTOM BAR
-    ========================== -->
+    <!-- BOTTOM BAR -->
 
     <div class="bottomBar">
 
-        <!-- FEATURE BUTTONS -->
-
         <div class="featureButtons">
-
-            <!-- WATCH PARTY -->
 
             <div class="featureCard">
 
@@ -168,8 +177,6 @@ src="js/videoroom.js"></script>
 
 
 
-            <!-- SCREEN SHARE -->
-
             <div class="featureCard">
 
                 <div class="featureIcon">
@@ -184,8 +191,6 @@ src="js/videoroom.js"></script>
 
 
 
-            <!-- GAMES -->
-
             <div class="featureCard">
 
                 <div class="featureIcon">
@@ -199,8 +204,6 @@ src="js/videoroom.js"></script>
             </div>
 
 
-
-            <!-- WHITEBOARD -->
 
             <div class="featureCard">
 
@@ -218,35 +221,21 @@ src="js/videoroom.js"></script>
 
 
 
-        <!-- CONTROL BUTTONS -->
+        <!-- CONTROLS -->
 
         <div class="bottomCenter">
-
-            <!-- MIC -->
 
             <button class="controlBtn">
                 🎤
             </button>
 
-
-
-            <!-- CAMERA -->
-
             <button class="controlBtn">
                 📹
             </button>
 
-
-
-            <!-- EMOJI -->
-
             <button class="controlBtn">
                 😊
             </button>
-
-
-
-            <!-- END CALL -->
 
             <button class="endCallBtn">
                 📞
