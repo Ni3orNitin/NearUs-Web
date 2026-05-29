@@ -3,13 +3,14 @@ import {
     ref,
     set,
     get,
-    push,
     onValue
 }
 from "./firebase.js";
 
 let peerConnection;
+
 let localStream;
+
 let remoteStream;
 
 const servers = {
@@ -33,7 +34,9 @@ export async function startCall(
 ){
 
     localStream =
-    await navigator.mediaDevices.getUserMedia({
+    await navigator
+    .mediaDevices
+    .getUserMedia({
 
         video:true,
         audio:true
@@ -56,7 +59,7 @@ export async function startCall(
 
     localStream
     .getTracks()
-    .forEach(track => {
+    .forEach(track=>{
 
         peerConnection.addTrack(
             track,
@@ -66,11 +69,11 @@ export async function startCall(
     });
 
     peerConnection.ontrack =
-    event => {
+    event=>{
 
         event.streams[0]
         .getTracks()
-        .forEach(track => {
+        .forEach(track=>{
 
             remoteStream.addTrack(
                 track
@@ -80,62 +83,36 @@ export async function startCall(
 
     };
 
-
-
-    /* ICE */
-
-    peerConnection.onicecandidate =
-    async event => {
-
-        if(event.candidate){
-
-            await push(
-
-                ref(
-                    database,
-                    "rooms/" +
-                    roomId +
-                    "/candidates"
-                ),
-
-                JSON.stringify(
-                    event.candidate
-                )
-
-            );
-
-        }
-
-    };
-
-
-
     const roomRef =
     ref(
         database,
-        "rooms/" + roomId
+        "calls/" + roomId
     );
 
-    const roomSnapshot =
+    const roomData =
     await get(roomRef);
 
+    if(!roomData.exists()){
 
-
-    if(!roomSnapshot.exists()){
-
-        await createRoom(roomId);
+        await createOffer(
+            roomId
+        );
 
     }
 
     else{
 
-        await joinRoom(roomId);
+        await createAnswer(
+            roomId
+        );
 
     }
 
 }
 
-async function createRoom(roomId){
+async function createOffer(
+    roomId
+){
 
     const offer =
     await peerConnection
@@ -147,51 +124,41 @@ async function createRoom(roomId){
     );
 
     await set(
-
         ref(
             database,
-            "rooms/" +
+            "calls/" +
             roomId +
             "/offer"
         ),
-
-        JSON.stringify(
-            offer
-        )
-
+        offer
     );
-
-
 
     onValue(
 
         ref(
             database,
-            "rooms/" +
+            "calls/" +
             roomId +
             "/answer"
         ),
 
-        async snapshot => {
+        async snapshot=>{
 
-            const data =
+            const answer =
             snapshot.val();
 
-            if(!data) return;
-
             if(
-                peerConnection
+                answer &&
+                !peerConnection
                 .currentRemoteDescription
-            ) return;
+            ){
 
-            await peerConnection
-            .setRemoteDescription(
+                await peerConnection
+                .setRemoteDescription(
+                    answer
+                );
 
-                new RTCSessionDescription(
-                    JSON.parse(data)
-                )
-
-            );
+            }
 
         }
 
@@ -199,14 +166,16 @@ async function createRoom(roomId){
 
 }
 
-async function joinRoom(roomId){
+async function createAnswer(
+    roomId
+){
 
-    const offerSnapshot =
+    const offerSnap =
     await get(
 
         ref(
             database,
-            "rooms/" +
+            "calls/" +
             roomId +
             "/offer"
         )
@@ -214,22 +183,12 @@ async function joinRoom(roomId){
     );
 
     const offer =
-    JSON.parse(
-        offerSnapshot.val()
-    );
-
-
+    offerSnap.val();
 
     await peerConnection
     .setRemoteDescription(
-
-        new RTCSessionDescription(
-            offer
-        )
-
+        offer
     );
-
-
 
     const answer =
     await peerConnection
@@ -240,20 +199,16 @@ async function joinRoom(roomId){
         answer
     );
 
-
-
     await set(
 
         ref(
             database,
-            "rooms/" +
+            "calls/" +
             roomId +
             "/answer"
         ),
 
-        JSON.stringify(
-            answer
-        )
+        answer
 
     );
 
