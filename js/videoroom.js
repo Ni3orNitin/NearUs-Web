@@ -1,4 +1,3 @@
-
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -41,6 +40,9 @@ const chatInput = document.getElementById("chatInput");
 const sendChatBtn = document.getElementById("sendChatBtn");
 const closeChatBtn = document.getElementById("closeChatBtn");
 const toggleChatPanelBtn = document.getElementById("toggleChatPanelBtn");
+
+const modal = document.getElementById("modal");
+const modalOk = document.getElementById("modalOk");
 
 /* =========================================================================
    2. CONFIGURATION & STATE MANAGEMENT
@@ -176,6 +178,9 @@ async function startCall() {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localVideo.srcObject = localStream;
 
+        // FIX: Ensure placeholder camera block is explicitly hidden once stream turns on
+        if (localOff) localOff.style.display = "none";
+
         peerConnection = new RTCPeerConnection(servers);
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
@@ -244,7 +249,19 @@ async function executeWebRTCHandshake() {
     });
 }
 
-initializeRoomPresence();
+// FIX: Initialize the room call process only after explicit user interaction on the onboarding modal modal
+if (modalOk) {
+    modalOk.onclick = () => {
+        if (modal) modal.style.display = "none";
+        initializeRoomPresence();
+    };
+}
+const modalClose = document.getElementById("modalClose");
+if (modalClose) {
+    modalClose.onclick = () => {
+        if (modal) modal.style.display = "none";
+    };
+}
 
 /* =========================================================================
    5. DYNAMIC INTERFACE TABS & PANE TOGGLE ACTIONS
@@ -322,7 +339,6 @@ function initYouTubeSyncEngine() {
     if (isYtApiLoaded) return;
     isYtApiLoaded = true;
 
-    // Fix: Load API script safely without blocking active WebRTC media streams
     if (!window.YT) {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -445,35 +461,51 @@ function initWhiteboardEngine() {
 
     const colors = ["#000000", "#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#a855f7"];
     const colorsContainer = document.getElementById("wbColors");
-    colorsContainer.innerHTML = "";
-    
-    colors.forEach((color, idx) => {
-        const dot = document.createElement("div");
-        dot.className = `colorDot ${idx === 0 ? "selected" : ""}`;
-        dot.style.backgroundColor = color;
-        dot.addEventListener("click", () => {
-            document.querySelectorAll(".colorDot").forEach(d => d.classList.remove("selected"));
-            dot.classList.add("selected");
-            strokeColor = color;
+    if (colorsContainer) {
+        colorsContainer.innerHTML = "";
+        colors.forEach((color, idx) => {
+            const dot = document.createElement("div");
+            dot.className = `colorDot ${idx === 0 ? "selected" : ""}`;
+            dot.style.backgroundColor = color;
+            dot.addEventListener("click", () => {
+                document.querySelectorAll(".colorDot").forEach(d => d.classList.remove("selected"));
+                dot.classList.add("selected");
+                strokeColor = color;
+                toolMode = "pen";
+                if(document.getElementById("wbPen")) document.getElementById("wbPen").classList.add("active");
+                if(document.getElementById("wbEraser")) document.getElementById("wbEraser").classList.remove("active");
+            });
+            colorsContainer.appendChild(dot);
+        });
+    }
+
+    if(document.getElementById("wbPen")) {
+        document.getElementById("wbPen").onclick = () => {
             toolMode = "pen";
             document.getElementById("wbPen").classList.add("active");
-            document.getElementById("wbEraser").classList.remove("active");
-        });
-        colorsContainer.appendChild(dot);
+            if(document.getElementById("wbEraser")) document.getElementById("wbEraser").classList.remove("active");
+        };
+    }
+    if(document.getElementById("wbEraser")) {
+        document.getElementById("wbEraser").onclick = () => {
+            toolMode = "eraser";
+            document.getElementById("wbEraser").classList.add("active");
+            if(document.getElementById("wbPen")) document.getElementById("wbPen").classList.remove("active");
+        };
+    }
+
+    // FIX: Add safe listeners to avoid element missing exceptions
+    ["wbLine", "wbRect", "wbCircle"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.onclick = () => { toolMode = id.replace("wb", "").toLowerCase(); };
     });
 
-    document.getElementById("wbPen").onclick = () => {
-        toolMode = "pen";
-        document.getElementById("wbPen").classList.add("active");
-        document.getElementById("wbEraser").classList.remove("active");
-    };
-    document.getElementById("wbEraser").onclick = () => {
-        toolMode = "eraser";
-        document.getElementById("wbEraser").classList.add("active");
-        document.getElementById("wbPen").classList.remove("active");
-    };
-    document.getElementById("wbSizeSlider").oninput = (e) => strokeSize = e.target.value;
-    document.getElementById("wbClearBtn").onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if(document.getElementById("wbSizeSlider")) {
+        document.getElementById("wbSizeSlider").oninput = (e) => strokeSize = e.target.value;
+    }
+    if(document.getElementById("wbClearBtn")) {
+        document.getElementById("wbClearBtn").onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
 
     canvas.addEventListener("mousedown", () => drawing = true);
     canvas.addEventListener("mouseup", () => { drawing = false; ctx.beginPath(); });
@@ -515,27 +547,34 @@ if(videoFilePick) {
    9. HARDWARE MULTIMEDIA MODIFIERS & UTILITIES
    ========================================================================= */
 let micOn = true;
-micBtn.onclick = () => {
-    micOn = !micOn;
-    if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
-    micBtn.classList.toggle("off", !micOn);
-    localBars.classList.toggle("off", !micOn);
-};
+if(micBtn) {
+    micBtn.onclick = () => {
+        micOn = !micOn;
+        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+        micBtn.classList.toggle("off", !micOn);
+        if(localBars) localBars.classList.toggle("off", !micOn);
+    };
+}
 
 let camOn = true;
-camBtn.onclick = () => {
-    camOn = !camOn;
-    if (localStream) localStream.getVideoTracks().forEach(t => t.enabled = camOn);
-    camBtn.classList.toggle("off", !camOn);
-    localOff.style.display = camOn ? "none" : "flex";
-};
+if(camBtn) {
+    camBtn.onclick = () => {
+        camOn = !camOn;
+        if (localStream) localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+        camBtn.classList.toggle("off", !camOn);
+        if(localOff) localOff.style.display = camOn ? "none" : "flex";
+    };
+}
 
-roomCodeBtn.onclick = async () => {
-    await navigator.clipboard.writeText(window.location.href);
-    showToast("Room link copied to clipboard! 📋");
-};
+if(roomCodeBtn) {
+    roomCodeBtn.onclick = async () => {
+        await navigator.clipboard.writeText(window.location.href);
+        showToast("Room link copied to clipboard! 📋");
+    };
+}
 
 function showToast(msg) {
+    if(!toast) return;
     toast.innerText = msg;
     toast.classList.add("show");
     setTimeout(() => toast.classList.remove("show"), 2500);
