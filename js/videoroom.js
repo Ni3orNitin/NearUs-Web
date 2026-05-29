@@ -49,7 +49,6 @@ const roomId = params.get("room") || "NUS8921";
 const myClientId = Math.random().toString(36).substring(2, 9); 
 
 let myRole = null; 
-let remoteCandidatesQueue = []; // Holds asynchronous ICE nodes safely
 
 if(roomCodeBtn) {
     roomCodeBtn.innerHTML = `
@@ -166,6 +165,7 @@ async function initializeRoomPresence() {
             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
         }
 
+        // Initialize local video streaming pipeline immediately
         await startCall();
     });
 }
@@ -186,7 +186,7 @@ async function startCall() {
                 if (remoteUserLabel) {
                     remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
                 }
-                console.log("WebRTC Remote Stream successfully mounted.");
+                console.log("WebRTC Remote Stream connected.");
             }
         };
 
@@ -217,7 +217,6 @@ async function executeWebRTCHandshake() {
             const data = snapshot.val();
             if (data && data.answer && !peerConnection.currentRemoteDescription) {
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                processQueuedCandidates(); // Process cached nodes instantly
             }
         });
 
@@ -231,32 +230,17 @@ async function executeWebRTCHandshake() {
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 await set(roomRef, { offer: data.offer, answer: { type: answer.type, sdp: answer.sdp } });
-                processQueuedCandidates(); // Process cached nodes instantly
             }
         });
     }
 
-    // Monitor cross-network data nodes asynchronously
     onChildAdded(iceCandidatesRef, (snapshot) => {
         const item = snapshot.val();
-        if (item && item.senderRole !== myRole) {
-            if (peerConnection && peerConnection.remoteDescription) {
-                peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate))
-                    .catch(e => console.error("Candidate connection failure:", e));
-            } else {
-                remoteCandidatesQueue.push(item.candidate); // Push to backup array if connection isn't ready
-            }
+        if (item && item.senderRole !== myRole && peerConnection.remoteDescription) {
+            peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate))
+                .catch(e => console.error("Candidate injection failure:", e));
         }
     });
-}
-
-function processQueuedCandidates() {
-    while (remoteCandidatesQueue.length > 0) {
-        const candidate = remoteCandidatesQueue.shift();
-        peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
-            .catch(e => console.error("Queued candidate allocation failed:", e));
-    }
-    console.log("Buffered network paths fully assigned.");
 }
 
 initializeRoomPresence();
@@ -337,6 +321,7 @@ function initYouTubeSyncEngine() {
     if (isYtApiLoaded) return;
     isYtApiLoaded = true;
 
+    // Fix: Load API script safely without blocking active WebRTC media streams
     if (!window.YT) {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
