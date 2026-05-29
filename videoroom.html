@@ -10,7 +10,6 @@
 <body>
 <div class="app">
 
-  <!-- ══ TOP BAR ══ -->
   <div class="topBar">
     <div class="logo">
       <div class="logo-dot"></div>
@@ -35,28 +34,23 @@
     </div>
   </div>
 
-  <!-- ══ MAIN ══ -->
   <div class="mainLayout">
 
-    <!-- LEFT: ACTIVITY -->
     <div class="activitySection">
 
       <div class="activityWindow" id="activityWindow">
 
-        <!-- Idle -->
         <div class="idlePane" id="idlePane">
           <div class="idleIcon">✨</div>
           <div class="idleTitle">Shared Activity Zone</div>
           <div class="idleDesc">Pick an activity below to get started</div>
         </div>
 
-        <!-- Screen Share -->
         <div class="actPane" id="screenPane">
           <div class="screenBadge"><div class="live"></div>Screen Sharing</div>
           <video id="screenVideo" autoplay playsinline muted></video>
         </div>
 
-        <!-- Whiteboard -->
         <div class="actPane" id="whiteboardPane">
           <canvas id="wbCanvas"></canvas>
           <div class="wbToolbar">
@@ -78,7 +72,6 @@
           </div>
         </div>
 
-        <!-- YouTube -->
         <div class="actPane" id="youtubePane">
           <div class="ytSearchBar">
             <input class="ytInput" id="ytUrl" type="text" placeholder="Paste YouTube URL or video ID…"/>
@@ -94,12 +87,11 @@
             <div class="ytIcon">▶️</div>
             <p>Paste a YouTube link above to watch together</p>
           </div>
-          <iframe id="ytFrame"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
+          <div id="ytPlayerContainer" style="width: 100%; height: 100%; display: none;">
+            <div id="ytPlayer"></div>
+          </div>
         </div>
 
-        <!-- Watch Party -->
         <div class="actPane" id="watchPane">
           <div id="watchFilePicker">
             <svg viewBox="0 0 24 24" fill="none">
@@ -113,10 +105,9 @@
           <video id="watchVideo" controls></video>
         </div>
 
-      </div><!-- /activityWindow -->
+        <div class="actPane" id="gamesPane"></div>
 
-      <!-- FEATURE TABS -->
-      <div class="featureTabs">
+      </div><div class="featureTabs" style="grid-template-columns: repeat(5, 1fr);">
         <div class="featTab" id="tab-watch" data-activity="watch">
           <span class="tIcon">🎬</span>
           <span class="tLabel">Watch Party</span>
@@ -133,15 +124,13 @@
           <span class="tIcon">▶️</span>
           <span class="tLabel">YouTube</span>
         </div>
+        <div class="featTab" id="tab-games" data-activity="games">
+          <span class="tIcon">🎮</span>
+          <span class="tLabel">Games</span>
+        </div>
       </div>
 
-    </div><!-- /activitySection -->
-
-    <!-- RIGHT: VIDEO SIDEBAR -->
-    <div class="videoSidebar" id="videoSidebar">
-
-      <!-- Local -->
-      <div class="videoSidebar" id="videoSidebar">
+    </div><div class="videoSidebar" id="videoSidebar">
 
       <div class="videoCard" id="localCard">
         <video id="localVideo" autoplay muted playsinline></video>
@@ -174,30 +163,7 @@
         </div>
       </div>
 
-    </div>
-
-      <!-- Remote -->
-      <div class="videoCard" id="remoteCard">
-        <video id="remoteVideo" autoplay playsinline></video>
-        <div class="remoteWaiting" id="remoteWaiting">
-          <div class="waitSpinner"></div>
-          <div class="waitText">Waiting for others to join…</div>
-          <div class="waitSub">Share room code: NUS8921</div>
-        </div>
-        <div class="cardOverlay" id="remoteOverlay" style="display:none">
-          <div class="cardLabel">Aarav</div>
-          <div class="audioBars purple" id="remoteBars">
-            <span></span><span></span><span></span><span></span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div><!-- /mainLayout -->
-
-  <!-- ══ BOTTOM BAR ══ -->
-  <div class="bottomBar">
+    </div></div><div class="bottomBar">
     <div class="bbGroup">
       <button class="cBtn small" data-tip="Participants">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -243,6 +209,7 @@
           <path d="M8 6l10 6-10 6V6z" fill="#ff6b6b"/>
         </svg>
       </button>
+      <button class="cBtn small" data-tip="Games 🎮" id="gamesBtn" style="display:none;"></button>
       <div class="bbSep"></div>
       <button class="cBtn small" data-tip="Reactions 🎉" id="reactBtn">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -267,12 +234,8 @@
     </div>
   </div>
 
-</div><!-- /app -->
+</div><div class="toast" id="toast"></div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modalBox">
     <div class="modalIcon" id="modalIcon">📷</div>

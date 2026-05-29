@@ -620,6 +620,11 @@
 //     remoteVideo
 // );
 
+
+
+
+
+
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -646,6 +651,7 @@ const screenPane = document.getElementById("screenPane");
 const whiteboardPane = document.getElementById("whiteboardPane");
 const youtubePane = document.getElementById("youtubePane");
 const watchPane = document.getElementById("watchPane");
+const gamesPane = document.getElementById("gamesPane");
 
 const roomCodeBtn = document.getElementById("roomCodeBtn");
 const leaveBtn = document.getElementById("leaveBtn");
@@ -669,7 +675,7 @@ const params = new URLSearchParams(window.location.search);
 const roomId = params.get("room") || "NUS8921";
 const myClientId = Math.random().toString(36).substring(2, 9); 
 
-let myRole = null; // Assigned dynamically: "Host" or "Guest"
+let myRole = null; 
 
 if(roomCodeBtn) {
     roomCodeBtn.innerHTML = `
@@ -695,9 +701,10 @@ const roomRef = ref(database, `rooms/${roomId}/calls`);
 const usersRef = ref(database, `rooms/${roomId}/users`);
 const iceCandidatesRef = ref(database, `rooms/${roomId}/iceCandidates`);
 const chatRef = ref(database, `rooms/${roomId}/chat`);
+const ytSyncRef = ref(database, `rooms/${roomId}/youtubeSync`);
 
 /* =========================================================================
-   3. LIVE TEXT CHAT ENGINE
+   3. LIVE TEXT CHAT REPLICATION ENGINE
    ========================================================================= */
 toggleChatPanelBtn.onclick = () => {
     chatPanel.classList.add("open");
@@ -739,14 +746,11 @@ onChildAdded(chatRef, (snapshot) => {
 });
 
 /* =========================================================================
-   4. DETAILED ROLE SELECTION & WEBRTC SIGNALING ENGINE
+   4. ROLE SELECTION & WEBRTC SIGNALING ENGINE
    ========================================================================= */
 async function initializeRoomPresence() {
-    // Synchronous transaction step determines exact slots allocation safely
     runTransaction(usersRef, (currentUsers) => {
-        if (!currentUsers) {
-            return { host: myClientId, guest: "" };
-        }
+        if (!currentUsers) return { host: myClientId, guest: "" };
         if (!currentUsers.host) {
             currentUsers.host = myClientId;
         } else if (!currentUsers.guest && currentUsers.host !== myClientId) {
@@ -760,28 +764,24 @@ async function initializeRoomPresence() {
             myRole = "Host";
             localRoleTag.innerText = "Host";
             localRoleTag.style.background = "rgba(124, 58, 237, 0.7)";
-            console.log("Presence Assigned: You are the Room Host.");
         } else if (users.guest === myClientId) {
             myRole = "Guest";
             localRoleTag.innerText = "Guest";
             localRoleTag.style.background = "rgba(16, 185, 129, 0.7)";
-            console.log("Presence Assigned: You are the Room Guest.");
         } else {
             myRole = "Spectator";
             localRoleTag.innerText = "Viewer";
-            console.log("Presence Assigned: Room full. Connecting as spectator.");
         }
 
-        // Clean room definitions on unexpected closures
         if (myRole === "Host") {
             onDisconnect(ref(database, `rooms/${roomId}/users/host`)).set("");
             onDisconnect(roomRef).set(null);
             onDisconnect(iceCandidatesRef).set(null);
+            onDisconnect(ytSyncRef).set(null); 
         } else if (myRole === "Guest") {
             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
         }
 
-        // Initialize WebRTC track engines
         await startCall();
     });
 }
@@ -802,13 +802,11 @@ async function startCall() {
                 if (remoteUserLabel) {
                     remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
                 }
-                console.log("Remote WebRTC track successfully mounted.");
             }
         };
 
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
-                // Label candidate paths to safely filter them later
                 push(iceCandidatesRef, {
                     candidate: event.candidate.toJSON(),
                     senderRole: myRole
@@ -826,30 +824,24 @@ async function startCall() {
 
 async function executeWebRTCHandshake() {
     if (myRole === "Host") {
-        console.log("Host publishing media connection offer...");
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         await set(roomRef, { offer: { type: offer.type, sdp: offer.sdp } });
 
-        // Listen explicitly for incoming Guest Answers
         onValue(roomRef, async (snapshot) => {
             const data = snapshot.val();
             if (data && data.answer && !peerConnection.currentRemoteDescription) {
-                console.log("Host processing matching Guest Answer...");
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
             }
         });
 
     } else if (myRole === "Guest") {
-        console.log("Guest searching for Host Offer parameters...");
         onValue(roomRef, async (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
             if (data.offer && !peerConnection.currentRemoteDescription) {
-                console.log("Guest processing parsed Host Offer...");
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-                
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 await set(roomRef, { offer: data.offer, answer: { type: answer.type, sdp: answer.sdp } });
@@ -857,7 +849,6 @@ async function executeWebRTCHandshake() {
         });
     }
 
-    // Filter candidate lists based on origin roles
     onChildAdded(iceCandidatesRef, (snapshot) => {
         const item = snapshot.val();
         if (item && item.senderRole !== myRole && peerConnection.remoteDescription) {
@@ -867,19 +858,19 @@ async function executeWebRTCHandshake() {
     });
 }
 
-// Start Room Connection Sequence
 initializeRoomPresence();
 
 /* =========================================================================
    5. DYNAMIC INTERFACE TABS & PANE TOGGLE ACTIONS
    ========================================================================= */
 const tabs = document.querySelectorAll(".featTab");
-const panes = [idlePane, screenPane, whiteboardPane, youtubePane, watchPane];
+const panes = [idlePane, screenPane, whiteboardPane, youtubePane, watchPane, gamesPane];
 
 const actionButtonMap = {
     "screenBtn": "screen",
     "wbBtn": "whiteboard",
-    "ytBtn": "youtube"
+    "ytBtn": "youtube",
+    "gamesBtn": "games"
 };
 
 Object.entries(actionButtonMap).forEach(([btnId, activityName]) => {
@@ -911,10 +902,134 @@ function switchActivity(activityName) {
     if(relatedBtnId) document.getElementById(relatedBtnId).classList.add("active");
 
     if (activityName === "whiteboard") initWhiteboardEngine();
+    if (activityName === "youtube") initYouTubeSyncEngine(); 
+    if (activityName === "games") launchGameZoneUI();
+}
+
+function launchGameZoneUI() {
+    gamesPane.innerHTML = `
+        <div class="gamesUI" style="padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; box-sizing: border-box; overflow-y: auto;">
+            <h1 class="gamesTitle" style="font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; margin-bottom: 30px; background: linear-gradient(135deg, #c084fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🎮 Game Zone</h1>
+            <div class="gamesGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; width: 100%; max-width: 800px;">
+                <div class="gameCard" style="background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <div style="font-size: 40px;">❌</div>
+                    <h2 style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700;">Tic Tac Toe</h2>
+                    <p style="font-size: 12px; color: var(--muted); line-height: 1.4;">Play live with your room peer.</p>
+                    <button class="filePickBtn" id="startTicTacToe" style="margin-top: auto; width: 100%; padding: 10px;">Play Now</button>
+                </div>
+            </div>
+        </div>`;
+
+    document.getElementById("startTicTacToe").onclick = () => {
+        gamesPane.innerHTML = `<iframe src="games/tictactoe.html?room=${roomId}" style="width:100%; height:100%; border:none; background:#04080f; display:block;"></iframe>`;
+    };
 }
 
 /* =========================================================================
-   6. WHITEBOARD DRAWING ENGINE
+   6. YOUTUBE SHARED ROOM PLAYBACK SYNCHRONIZATION ENGINE
+   ========================================================================= */
+let ytPlayer = null;
+let isYtApiLoaded = false;
+let isUpdatingFromFirebase = false; 
+
+function initYouTubeSyncEngine() {
+    if (isYtApiLoaded) return;
+    isYtApiLoaded = true;
+
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+    window.onYouTubeIframeAPIReady = () => {
+        ytPlayer = new YT.Player('ytPlayer', {
+            height: '100%',
+            width: '100%',
+            videoId: '', 
+            playerVars: {
+                'playsinline': 1,
+                'controls': 1,
+                'rel': 0
+            },
+            events: {
+                'onStateChange': handlePlayerStateChange
+            }
+        });
+        listenToFirebaseYTSync();
+    };
+}
+
+function handlePlayerStateChange(event) {
+    if (isUpdatingFromFirebase || !ytPlayer) return;
+
+    const currentState = event.data;
+    const currentTime = ytPlayer.getCurrentTime();
+
+    if (currentState === YT.PlayerState.PLAYING || currentState === YT.PlayerState.PAUSED) {
+        set(ytSyncRef, {
+            sender: myClientId,
+            state: currentState,
+            time: currentTime,
+            videoId: ytPlayer.getVideoData().video_id,
+            timestamp: Date.now()
+        });
+    }
+}
+
+function listenToFirebaseYTSync() {
+    onValue(ytSyncRef, (snapshot) => {
+        const data = snapshot.val();
+        if (!data || data.sender === myClientId || !ytPlayer) return;
+
+        isUpdatingFromFirebase = true; 
+        const currentVideoId = ytPlayer.getVideoData().video_id;
+
+        if (data.videoId && data.videoId !== currentVideoId) {
+            document.getElementById("ytPlaceholderDiv").style.display = "none";
+            document.getElementById("ytPlayerContainer").style.display = "block";
+            ytPlayer.loadVideoById(data.videoId, data.time);
+        }
+
+        const localTime = ytPlayer.getCurrentTime();
+        if (Math.abs(localTime - data.time) > 2) {
+            ytPlayer.seekTo(data.time, true);
+        }
+
+        if (data.state === YT.PlayerState.PLAYING) {
+            ytPlayer.playVideo();
+        } else if (data.state === YT.PlayerState.PAUSED) {
+            ytPlayer.pauseVideo();
+        }
+
+        setTimeout(() => { isUpdatingFromFirebase = false; }, 600);
+    });
+}
+
+document.getElementById("ytLoadBtn").onclick = () => {
+    const urlVal = document.getElementById("ytUrl").value.trim();
+    let videoId = urlVal;
+    
+    if(urlVal.includes("v=")) videoId = urlVal.split("v=")[1].split("&")[0];
+    else if(urlVal.includes("youtu.be/")) videoId = urlVal.split("youtu.be/")[1].split("?")[0];
+
+    if(videoId && ytPlayer) {
+        document.getElementById("ytPlaceholderDiv").style.display = "none";
+        document.getElementById("ytPlayerContainer").style.display = "block";
+        
+        set(ytSyncRef, {
+            sender: myClientId,
+            state: YT.PlayerState.PLAYING,
+            time: 0,
+            videoId: videoId,
+            timestamp: Date.now()
+        });
+
+        ytPlayer.loadVideoById(videoId, 0);
+    }
+};
+
+/* =========================================================================
+   7. WHITEBOARD DRAWING ENGINE
    ========================================================================= */
 let isWbInitialized = false;
 function initWhiteboardEngine() {
@@ -981,23 +1096,8 @@ function initWhiteboardEngine() {
 }
 
 /* =========================================================================
-   7. YOUTUBE / WATCH PARTY DELEGATIONS
+   8. WATCH PARTY / FILE DELEGATIONS
    ========================================================================= */
-document.getElementById("ytLoadBtn").onclick = () => {
-    const urlVal = document.getElementById("ytUrl").value.trim();
-    let videoId = urlVal;
-    
-    if(urlVal.includes("v=")) videoId = urlVal.split("v=")[1].split("&")[0];
-    else if(urlVal.includes("youtu.be/")) videoId = urlVal.split("youtu.be/")[1].split("?")[0];
-
-    if(videoId) {
-        document.getElementById("ytPlaceholderDiv").style.display = "none";
-        const frame = document.getElementById("ytFrame");
-        frame.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1`;
-        frame.style.display = "block";
-    }
-};
-
 const filePickBtn = document.getElementById("filePickBtn");
 const videoFilePick = document.getElementById("videoFilePick");
 const watchVideo = document.getElementById("watchVideo");
@@ -1016,7 +1116,7 @@ if(videoFilePick) {
 }
 
 /* =========================================================================
-   8. HARDWARE MULTIMEDIA MODIFIERS & UTILITIES
+   9. HARDWARE MULTIMEDIA MODIFIERS & UTILITIES
    ========================================================================= */
 let micOn = true;
 micBtn.onclick = () => {
