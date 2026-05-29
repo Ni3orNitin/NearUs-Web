@@ -141,6 +141,8 @@
     <div class="videoSidebar" id="videoSidebar">
 
       <!-- Local -->
+      <div class="videoSidebar" id="videoSidebar">
+
       <div class="videoCard" id="localCard">
         <video id="localVideo" autoplay muted playsinline></video>
         <div class="videoOff" id="localOff">
@@ -149,13 +151,30 @@
         </div>
         <div class="cardOverlay">
           <div class="cardLabel">
-            You <span class="youTag">Host</span>
+            You <span class="youTag" id="localRoleTag">Joined</span>
           </div>
           <div class="audioBars" id="localBars">
             <span></span><span></span><span></span><span></span>
           </div>
         </div>
       </div>
+
+      <div class="videoCard" id="remoteCard">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <div class="remoteWaiting" id="remoteWaiting">
+          <div class="waitSpinner"></div>
+          <div class="waitText">Waiting for others to join…</div>
+          <div class="waitSub" id="waitRoomCodeDisplay">Share room code: NUS8921</div>
+        </div>
+        <div class="cardOverlay" id="remoteOverlay" style="display:none">
+          <div class="cardLabel" id="remoteUserLabel">Peer Connection</div>
+          <div class="audioBars purple" id="remoteBars">
+            <span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
 
       <!-- Remote -->
       <div class="videoCard" id="remoteCard">

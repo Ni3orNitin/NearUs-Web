@@ -620,10 +620,8 @@
 //     remoteVideo
 // );
 
-
-
 import { database } from "./firebase.js";
-import { ref, set, onValue, push, onChildAdded, runTransaction } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
 /* =========================================================================
    1. DOM ELEMENT BINDINGS
@@ -631,10 +629,13 @@ import { ref, set, onValue, push, onChildAdded, runTransaction } from "https://w
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 const localOff = document.getElementById("localOff");
-// FIX: Bind to the correct IDs from your new HTML template
+const localRoleTag = document.getElementById("localRoleTag");
+
 const remoteCard = document.getElementById("remoteCard"); 
 const remoteWaiting = document.getElementById("remoteWaiting");
 const remoteOverlay = document.getElementById("remoteOverlay");
+const remoteUserLabel = document.getElementById("remoteUserLabel");
+const waitRoomCodeDisplay = document.getElementById("waitRoomCodeDisplay");
 
 const localBars = document.getElementById("localBars");
 const remoteBars = document.getElementById("remoteBars");
@@ -666,7 +667,9 @@ const toggleChatPanelBtn = document.getElementById("toggleChatPanelBtn");
    ========================================================================= */
 const params = new URLSearchParams(window.location.search);
 const roomId = params.get("room") || "NUS8921";
-const myClientId = Math.random().toString(36).substring(2, 9); // Distinct sender id tag
+const myClientId = Math.random().toString(36).substring(2, 9); 
+
+let myRole = null; // Assigned dynamically: "Host" or "Guest"
 
 if(roomCodeBtn) {
     roomCodeBtn.innerHTML = `
@@ -674,6 +677,9 @@ if(roomCodeBtn) {
           <rect x="9" y="9" width="13" height="13" rx="2"/>
           <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
         </svg> ${roomId}`;
+}
+if (waitRoomCodeDisplay) {
+    waitRoomCodeDisplay.innerText = `Share room code: ${roomId}`;
 }
 
 let localStream = null;
@@ -686,13 +692,13 @@ const servers = {
 };
 
 const roomRef = ref(database, `rooms/${roomId}/calls`);
+const usersRef = ref(database, `rooms/${roomId}/users`);
 const iceCandidatesRef = ref(database, `rooms/${roomId}/iceCandidates`);
 const chatRef = ref(database, `rooms/${roomId}/chat`);
 
 /* =========================================================================
-   3. LIVE TEXT CHAT REPLICATION ENGINE
+   3. LIVE TEXT CHAT ENGINE
    ========================================================================= */
-// Open/Close Chat UI Panels Safely
 toggleChatPanelBtn.onclick = () => {
     chatPanel.classList.add("open");
     toggleChatPanelBtn.style.display = "none";
@@ -703,7 +709,6 @@ closeChatBtn.onclick = () => {
     toggleChatPanelBtn.style.display = "flex";
 };
 
-// Push fresh chat payloads up to Firebase
 function emitChatMessage() {
     const text = chatInput.value.trim();
     if (!text) return;
@@ -719,7 +724,6 @@ function emitChatMessage() {
 sendChatBtn.onclick = emitChatMessage;
 chatInput.onkeydown = (e) => { if (e.key === "Enter") emitChatMessage(); };
 
-// Listen for incoming messages added from ANY linked device
 onChildAdded(chatRef, (snapshot) => {
     const data = snapshot.val();
     if (!data) return;
@@ -731,12 +735,57 @@ onChildAdded(chatRef, (snapshot) => {
     msgElement.innerText = data.message;
     
     chatMessages.appendChild(msgElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Keep view scrolled down
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
 /* =========================================================================
-   4. WEBRTC CONNECTIVITY ENGINE
+   4. DETAILED ROLE SELECTION & WEBRTC SIGNALING ENGINE
    ========================================================================= */
+async function initializeRoomPresence() {
+    // Synchronous transaction step determines exact slots allocation safely
+    runTransaction(usersRef, (currentUsers) => {
+        if (!currentUsers) {
+            return { host: myClientId, guest: "" };
+        }
+        if (!currentUsers.host) {
+            currentUsers.host = myClientId;
+        } else if (!currentUsers.guest && currentUsers.host !== myClientId) {
+            currentUsers.guest = myClientId;
+        }
+        return currentUsers;
+    }).then(async (result) => {
+        const users = result.snapshot.val();
+        
+        if (users.host === myClientId) {
+            myRole = "Host";
+            localRoleTag.innerText = "Host";
+            localRoleTag.style.background = "rgba(124, 58, 237, 0.7)";
+            console.log("Presence Assigned: You are the Room Host.");
+        } else if (users.guest === myClientId) {
+            myRole = "Guest";
+            localRoleTag.innerText = "Guest";
+            localRoleTag.style.background = "rgba(16, 185, 129, 0.7)";
+            console.log("Presence Assigned: You are the Room Guest.");
+        } else {
+            myRole = "Spectator";
+            localRoleTag.innerText = "Viewer";
+            console.log("Presence Assigned: Room full. Connecting as spectator.");
+        }
+
+        // Clean room definitions on unexpected closures
+        if (myRole === "Host") {
+            onDisconnect(ref(database, `rooms/${roomId}/users/host`)).set("");
+            onDisconnect(roomRef).set(null);
+            onDisconnect(iceCandidatesRef).set(null);
+        } else if (myRole === "Guest") {
+            onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
+        }
+
+        // Initialize WebRTC track engines
+        await startCall();
+    });
+}
+
 async function startCall() {
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -748,74 +797,78 @@ async function startCall() {
         peerConnection.ontrack = (event) => {
             if (event.streams && event.streams[0]) {
                 remoteVideo.srcObject = event.streams[0];
-                if(remoteWaiting) remoteWaiting.style.display = "none";
-                if(remoteOverlay) remoteOverlay.style.display = "flex";
-
-                console.log("Remote video track attached successfully!");
+                if (remoteWaiting) remoteWaiting.style.display = "none";
+                if (remoteOverlay) remoteOverlay.style.display = "flex";
+                if (remoteUserLabel) {
+                    remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
+                }
+                console.log("Remote WebRTC track successfully mounted.");
             }
         };
 
         peerConnection.onicecandidate = (event) => {
             if (event.candidate) {
-                push(iceCandidatesRef, event.candidate.toJSON());
+                // Label candidate paths to safely filter them later
+                push(iceCandidatesRef, {
+                    candidate: event.candidate.toJSON(),
+                    senderRole: myRole
+                });
             }
         };
 
-        setupSignaling();
+        executeWebRTCHandshake();
 
     } catch (error) {
-        console.error("Hardware initialization failed:", error);
-        showToast("Camera/Microphone access required!");
+        console.error("Hardware stream collection failed:", error);
+        showToast("Camera/Microphone tracks access denied.");
     }
 }
 
-function setupSignaling() {
-    runTransaction(roomRef, (currentData) => {
-        if (!currentData) return { status: "hosting" };
-        return currentData; 
-    }).then(async (result) => {
-        const data = result.snapshot.val();
-        if (data && data.status === "hosting" && !data.offer) {
-            console.log("Device 1 locked as Host.");
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-            await set(roomRef, {
-                offer: { type: offer.type, sdp: offer.sdp },
-                status: "waiting-for-answer"
-            });
-        }
-    });
+async function executeWebRTCHandshake() {
+    if (myRole === "Host") {
+        console.log("Host publishing media connection offer...");
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        await set(roomRef, { offer: { type: offer.type, sdp: offer.sdp } });
 
-    onValue(roomRef, async (snapshot) => {
-        const data = snapshot.val();
-        if (!data) return;
+        // Listen explicitly for incoming Guest Answers
+        onValue(roomRef, async (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.answer && !peerConnection.currentRemoteDescription) {
+                console.log("Host processing matching Guest Answer...");
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+            }
+        });
 
-        if (data.offer && !peerConnection.currentRemoteDescription && data.status === "waiting-for-answer") {
-            console.log("Device 2 processing Host Offer...");
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-            const answer = await peerConnection.createAnswer();
-            await peerConnection.setLocalDescription(answer);
-            await set(roomRef, {
-                offer: data.offer,
-                answer: { type: answer.type, sdp: answer.sdp },
-                status: "connected"
-            });
-        } else if (data.answer && !peerConnection.currentRemoteDescription) {
-            console.log("Completing Handshake loop...");
-            await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-        }
-    });
+    } else if (myRole === "Guest") {
+        console.log("Guest searching for Host Offer parameters...");
+        onValue(roomRef, async (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
 
+            if (data.offer && !peerConnection.currentRemoteDescription) {
+                console.log("Guest processing parsed Host Offer...");
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+                
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                await set(roomRef, { offer: data.offer, answer: { type: answer.type, sdp: answer.sdp } });
+            }
+        });
+    }
+
+    // Filter candidate lists based on origin roles
     onChildAdded(iceCandidatesRef, (snapshot) => {
-        const candidateData = snapshot.val();
-        if (candidateData && peerConnection.remoteDescription) {
-            peerConnection.addIceCandidate(new RTCIceCandidate(candidateData))
-                .catch(e => console.error("ICE Error:", e));
+        const item = snapshot.val();
+        if (item && item.senderRole !== myRole && peerConnection.remoteDescription) {
+            peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate))
+                .catch(e => console.error("Candidate injection failure:", e));
         }
     });
 }
 
-startCall();
+// Start Room Connection Sequence
+initializeRoomPresence();
 
 /* =========================================================================
    5. DYNAMIC INTERFACE TABS & PANE TOGGLE ACTIONS
@@ -968,7 +1021,7 @@ if(videoFilePick) {
 let micOn = true;
 micBtn.onclick = () => {
     micOn = !micOn;
-    localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+    if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
     micBtn.classList.toggle("off", !micOn);
     localBars.classList.toggle("off", !micOn);
 };
@@ -976,7 +1029,7 @@ micBtn.onclick = () => {
 let camOn = true;
 camBtn.onclick = () => {
     camOn = !camOn;
-    localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+    if (localStream) localStream.getVideoTracks().forEach(t => t.enabled = camOn);
     camBtn.classList.toggle("off", !camOn);
     localOff.style.display = camOn ? "none" : "flex";
 };
