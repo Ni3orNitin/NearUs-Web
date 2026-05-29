@@ -1,632 +1,3 @@
-// import { startCall } from "./webrtc.js";
-
-// const localVideo =
-// document.getElementById("localVideo");
-
-// const remoteVideo =
-// document.getElementById("remoteVideo");
-
-// const activityWindow =
-// document.querySelector(".activityWindow");
-
-
-
-// /* ROOM */
-
-// const params =
-// new URLSearchParams(window.location.search);
-
-// const roomId =
-// params.get("room") || "demo-room";
-
-
-
-// /* ROOM UI */
-
-// const roomCodeText =
-// document.getElementById("roomCode");
-
-// const copyRoomBtn =
-// document.getElementById("copyRoomBtn");
-
-// roomCodeText.innerText =
-// roomId;
-
-
-
-// copyRoomBtn.addEventListener("click", async () => {
-
-//     await navigator.clipboard.writeText(
-//         window.location.href
-//     );
-
-//     copyRoomBtn.innerText =
-//     "Copied!";
-
-//     setTimeout(() => {
-
-//         copyRoomBtn.innerText =
-//         "Copy Link";
-
-//     },2000);
-
-// });
-
-
-
-// /* CAMERA */
-
-// async function startVideo(){
-
-//     try{
-
-//         const stream =
-//         await navigator
-//         .mediaDevices
-//         .getUserMedia({
-
-//             video:true,
-//             audio:true
-
-//         });
-
-//         localVideo.srcObject =
-//         stream;
-
-//     }
-
-//     catch{
-
-//         alert("Camera access denied");
-
-//     }
-
-// }
-
-// startVideo();
-
-
-
-// /* FEATURES */
-
-// const featureCards =
-// document.querySelectorAll(".featureCard");
-
-
-
-// featureCards.forEach(card => {
-
-//     card.addEventListener("click", async () => {
-
-//         const title =
-//         card.querySelector(".featureText")
-//         .innerText
-//         .trim();
-
-
-
-//         /* WATCH PARTY */
-
-//         if(title === "Watch Party"){
-
-//             activityWindow.innerHTML = `
-
-//             <div class="watchPartyUI">
-
-//                 <div class="playerArea">
-
-//                     <iframe
-//                     src="https://www.youtube.com/embed/videoseries?list=PLIlng4MI3pW88NAuEBtQlGT4WEAae5NPA"
-//                     allowfullscreen>
-//                     </iframe>
-
-//                 </div>
-
-//             </div>
-
-//             `;
-//         }
-
-
-
-//         /* SCREEN SHARE */
-
-//         else if(title === "Screen Share"){
-
-//             try{
-
-//                 const stream =
-//                 await navigator
-//                 .mediaDevices
-//                 .getDisplayMedia({
-
-//                     video:true,
-//                     audio:true
-
-//                 });
-
-//                 activityWindow.innerHTML = `
-
-//                 <div class="screenShareWrapper">
-
-//                     <video
-//                     id="screenVideo"
-//                     autoplay
-//                     playsinline>
-//                     </video>
-
-//                 </div>
-
-//                 `;
-
-//                 const screenVideo =
-//                 document.getElementById(
-//                     "screenVideo"
-//                 );
-
-//                 screenVideo.srcObject =
-//                 stream;
-
-//             }
-
-//             catch{
-
-//                 alert(
-//                     "Screen Share Cancelled"
-//                 );
-//             }
-
-//         }
-
-
-
-//         /* GAMES */
-
-//         else if(title === "Games"){
-
-//             activityWindow.innerHTML = `
-
-//             <div class="gamesUI">
-
-//                 <h1 class="gamesTitle">
-//                     🎮 Game Zone
-//                 </h1>
-
-//                 <div class="gamesGrid">
-
-//                     <div class="gameCard">
-
-//                         <div class="gameImage">
-//                             ❌
-//                         </div>
-
-//                         <div class="gameContent">
-
-//                             <h2>
-//                                 Tic Tac Toe
-//                             </h2>
-
-//                             <p>
-//                                 Play multiplayer with friends
-//                             </p>
-
-//                             <button
-//                             class="playBtn"
-//                             id="startTicTacToe">
-
-//                                 Play Now
-
-//                             </button>
-
-//                         </div>
-
-//                     </div>
-
-
-
-//                     <div class="gameCard">
-
-//                         <div class="gameImage">
-//                             🃏
-//                         </div>
-
-//                         <div class="gameContent">
-
-//                             <h2>
-//                                 UNO Party
-//                             </h2>
-
-//                             <p>
-//                                 Multiplayer UNO with friends
-//                             </p>
-
-//                             <button
-//                             class="playBtn">
-
-//                                 Coming Soon
-
-//                             </button>
-
-//                         </div>
-
-//                     </div>
-
-
-
-//                     <div class="gameCard">
-
-//                         <div class="gameImage">
-//                             🐍
-//                         </div>
-
-//                         <div class="gameContent">
-
-//                             <h2>
-//                                 Snake Battle
-//                             </h2>
-
-//                             <p>
-//                                 Real-time snake challenge
-//                             </p>
-
-//                             <button
-//                             class="playBtn">
-
-//                                 Coming Soon
-
-//                             </button>
-
-//                         </div>
-
-//                     </div>
-
-
-
-//                     <div class="gameCard">
-
-//                         <div class="gameImage">
-//                             🧠
-//                         </div>
-
-//                         <div class="gameContent">
-
-//                             <h2>
-//                                 Quiz Arena
-//                             </h2>
-
-//                             <p>
-//                                 Live multiplayer quiz battles
-//                             </p>
-
-//                             <button
-//                             class="playBtn">
-
-//                                 Coming Soon
-
-//                             </button>
-
-//                         </div>
-
-//                     </div>
-
-//                 </div>
-
-//             </div>
-
-//             `;
-
-
-
-//             document
-//             .getElementById("startTicTacToe")
-//             .addEventListener("click", () => {
-
-//                 activityWindow.innerHTML = `
-
-//                 <iframe
-//                 src="games/tictactoe.html?room=${roomId}"
-//                 class="gameFrame">
-//                 </iframe>
-
-//                 `;
-
-//             });
-
-//         }
-
-
-
-//         /* WHITEBOARD */
-
-//         else if(title === "Whiteboard"){
-
-//             activityWindow.innerHTML = `
-
-//             <div class="whiteboardContainer">
-
-//                 <canvas id="whiteboard"></canvas>
-
-//                 <button id="clearBoard">
-
-//                     Clear Board
-
-//                 </button>
-
-//             </div>
-
-//             `;
-
-//             const canvas =
-//             document.getElementById(
-//                 "whiteboard"
-//             );
-
-//             const ctx =
-//             canvas.getContext("2d");
-
-//             canvas.width =
-//             activityWindow.clientWidth;
-
-//             canvas.height =
-//             activityWindow.clientHeight;
-
-//             let drawing = false;
-
-
-
-//             canvas.addEventListener(
-//                 "mousedown",
-//                 () => drawing = true
-//             );
-
-
-
-//             canvas.addEventListener(
-//                 "mouseup",
-//                 () => {
-
-//                     drawing = false;
-
-//                     ctx.beginPath();
-
-//                 }
-//             );
-
-
-
-//             canvas.addEventListener(
-//                 "mousemove",
-//                 draw
-//             );
-
-
-
-//             function draw(event){
-
-//                 if(!drawing) return;
-
-//                 const rect =
-//                 canvas.getBoundingClientRect();
-
-//                 ctx.lineWidth = 4;
-
-//                 ctx.lineCap = "round";
-
-//                 ctx.strokeStyle = "#000";
-
-//                 ctx.lineTo(
-
-//                     event.clientX - rect.left,
-
-//                     event.clientY - rect.top
-
-//                 );
-
-//                 ctx.stroke();
-
-//                 ctx.beginPath();
-
-//                 ctx.moveTo(
-
-//                     event.clientX - rect.left,
-
-//                     event.clientY - rect.top
-
-//                 );
-
-//             }
-
-
-
-//             document
-//             .getElementById("clearBoard")
-//             .onclick = () => {
-
-//                 ctx.clearRect(
-
-//                     0,
-//                     0,
-//                     canvas.width,
-//                     canvas.height
-
-//                 );
-
-//             };
-
-//         }
-
-//     });
-
-// });
-
-
-
-// /* MIC */
-
-// const micBtn =
-// document.querySelectorAll(".controlBtn")[0];
-
-// let micOn = true;
-
-// micBtn.addEventListener("click", () => {
-
-//     micOn = !micOn;
-
-//     micBtn.innerHTML =
-//     micOn ? "🎤" : "🔇";
-
-// });
-
-
-
-// /* CAMERA */
-
-// const camBtn =
-// document.querySelectorAll(".controlBtn")[1];
-
-// let camOn = true;
-
-// camBtn.addEventListener("click", () => {
-
-//     camOn = !camOn;
-
-//     camBtn.innerHTML =
-//     camOn ? "📹" : "🚫";
-
-// });
-
-
-
-// /* EMOJI */
-
-// const emojiBtn =
-// document.querySelectorAll(".controlBtn")[2];
-
-// const emojis =
-// ["🔥","😂","😍","👏","🎉"];
-
-// emojiBtn.addEventListener("click", () => {
-
-//     const emoji =
-//     document.createElement("div");
-
-//     emoji.innerText =
-//     emojis[
-//         Math.floor(
-//             Math.random() *
-//             emojis.length
-//         )
-//     ];
-
-//     emoji.style.position =
-//     "absolute";
-
-//     emoji.style.left =
-//     Math.random()*80 + "%";
-
-//     emoji.style.bottom =
-//     "120px";
-
-//     emoji.style.fontSize =
-//     "50px";
-
-//     document.body.appendChild(
-//         emoji
-//     );
-
-//     setTimeout(() => {
-
-//         emoji.remove();
-
-//     },2000);
-
-// });
-
-
-
-// /* LEAVE */
-
-// document
-// .querySelector(".leaveBtn")
-// .addEventListener("click", () => {
-
-//     window.location.href =
-//     "home.html";
-
-// });
-
-
-
-// /* END CALL */
-
-// document
-// .querySelector(".endCallBtn")
-// .addEventListener("click", () => {
-
-//     alert("Call Ended");
-
-//     window.location.href =
-//     "home.html";
-
-// });
-
-
-
-// new js
-
-
-
-
-
-
-// import { startCall } from "./webrtc.js";
-
-// const localVideo =
-// document.getElementById("localVideo");
-
-// const remoteVideo =
-// document.getElementById("remoteVideo");
-
-// const roomCode =
-// document.getElementById("roomCode");
-
-// const copyRoomBtn =
-// document.getElementById("copyRoomBtn");
-
-// const params =
-// new URLSearchParams(window.location.search);
-
-// const roomId =
-// params.get("room");
-
-// roomCode.innerText = roomId;
-
-// copyRoomBtn.addEventListener(
-//     "click",
-//     async ()=>{
-
-//         await navigator.clipboard.writeText(
-//             window.location.href
-//         );
-
-//         alert("Room Link Copied");
-
-//     }
-// );
-
-// startCall(
-//     roomId,
-//     localVideo,
-//     remoteVideo
-// );
-
-
-
-
-
-
-
-
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -678,6 +49,7 @@ const roomId = params.get("room") || "NUS8921";
 const myClientId = Math.random().toString(36).substring(2, 9); 
 
 let myRole = null; 
+let remoteCandidatesQueue = []; // Holds asynchronous ICE nodes safely
 
 if(roomCodeBtn) {
     roomCodeBtn.innerHTML = `
@@ -794,7 +166,6 @@ async function initializeRoomPresence() {
             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
         }
 
-        // Initialize local video streaming pipeline immediately
         await startCall();
     });
 }
@@ -815,7 +186,7 @@ async function startCall() {
                 if (remoteUserLabel) {
                     remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
                 }
-                console.log("WebRTC Remote Stream connected.");
+                console.log("WebRTC Remote Stream successfully mounted.");
             }
         };
 
@@ -846,6 +217,7 @@ async function executeWebRTCHandshake() {
             const data = snapshot.val();
             if (data && data.answer && !peerConnection.currentRemoteDescription) {
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                processQueuedCandidates(); // Process cached nodes instantly
             }
         });
 
@@ -859,17 +231,32 @@ async function executeWebRTCHandshake() {
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
                 await set(roomRef, { offer: data.offer, answer: { type: answer.type, sdp: answer.sdp } });
+                processQueuedCandidates(); // Process cached nodes instantly
             }
         });
     }
 
+    // Monitor cross-network data nodes asynchronously
     onChildAdded(iceCandidatesRef, (snapshot) => {
         const item = snapshot.val();
-        if (item && item.senderRole !== myRole && peerConnection.remoteDescription) {
-            peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate))
-                .catch(e => console.error("Candidate injection failure:", e));
+        if (item && item.senderRole !== myRole) {
+            if (peerConnection && peerConnection.remoteDescription) {
+                peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate))
+                    .catch(e => console.error("Candidate connection failure:", e));
+            } else {
+                remoteCandidatesQueue.push(item.candidate); // Push to backup array if connection isn't ready
+            }
         }
     });
+}
+
+function processQueuedCandidates() {
+    while (remoteCandidatesQueue.length > 0) {
+        const candidate = remoteCandidatesQueue.shift();
+        peerConnection.addIceCandidate(new RTCIceCandidate(candidate))
+            .catch(e => console.error("Queued candidate allocation failed:", e));
+    }
+    console.log("Buffered network paths fully assigned.");
 }
 
 initializeRoomPresence();
@@ -950,7 +337,6 @@ function initYouTubeSyncEngine() {
     if (isYtApiLoaded) return;
     isYtApiLoaded = true;
 
-    // Fix: Load API script safely without blocking active WebRTC media streams
     if (!window.YT) {
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
