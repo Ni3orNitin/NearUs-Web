@@ -621,8 +621,6 @@
 // );
 
 
-
-
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -688,11 +686,22 @@ if (waitRoomCodeDisplay) {
 
 let localStream = null;
 let peerConnection = null;
+
+// FIX: Expanded Production STUN cluster pool to penetrate cellular symmetric NAT routers
 const servers = {
     iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" }
-    ]
+        { urls: "stun:stun1.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        { urls: "stun:stun3.l.google.com:19302" },
+        { urls: "stun:stun4.l.google.com:19302" },
+        { urls: "stun:stun.ekiga.net" },
+        { urls: "stun:stun.ideasip.com" },
+        { urls: "stun:stun.rixtelecom.se" },
+        { urls: "stun:stun.schlund.de" },
+        { urls: "stun:stun.twt.it" }
+    ],
+    iceCandidatePoolSize: 10
 };
 
 const roomRef = ref(database, `rooms/${roomId}/calls`);
@@ -780,7 +789,7 @@ async function initializeRoomPresence() {
             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
         }
 
-        // CRITICAL: Initialize local video streaming FIRST
+        // Initialize local video streaming pipeline
         await startCall();
     });
 }

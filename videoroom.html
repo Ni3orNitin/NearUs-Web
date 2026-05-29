@@ -10,7 +10,6 @@
 <body>
 <div class="app">
 
-  <!-- ══ TOP BAR ══ -->
   <div class="topBar">
     <div class="logo">
       <div class="logo-dot"></div>
@@ -35,28 +34,23 @@
     </div>
   </div>
 
-  <!-- ══ MAIN ══ -->
   <div class="mainLayout">
 
-    <!-- LEFT: ACTIVITY -->
     <div class="activitySection">
 
       <div class="activityWindow" id="activityWindow">
 
-        <!-- Idle -->
         <div class="idlePane" id="idlePane">
           <div class="idleIcon">✨</div>
           <div class="idleTitle">Shared Activity Zone</div>
           <div class="idleDesc">Pick an activity below to get started</div>
         </div>
 
-        <!-- Screen Share -->
         <div class="actPane" id="screenPane">
           <div class="screenBadge"><div class="live"></div>Screen Sharing</div>
           <video id="screenVideo" autoplay playsinline muted></video>
         </div>
 
-        <!-- Whiteboard -->
         <div class="actPane" id="whiteboardPane">
           <canvas id="wbCanvas"></canvas>
           <div class="wbToolbar">
@@ -78,7 +72,6 @@
           </div>
         </div>
 
-        <!-- YouTube -->
         <div class="actPane" id="youtubePane">
           <div class="ytSearchBar">
             <input class="ytInput" id="ytUrl" type="text" placeholder="Paste YouTube URL or video ID…"/>
@@ -99,7 +92,6 @@
           </div>
         </div>
 
-        <!-- Watch Party -->
         <div class="actPane" id="watchPane">
           <div id="watchFilePicker">
             <svg viewBox="0 0 24 24" fill="none">
@@ -113,13 +105,9 @@
           <video id="watchVideo" controls></video>
         </div>
 
-        <!-- Games Section Pane -->
         <div class="actPane" id="gamesPane"></div>
 
-      </div><!-- /activityWindow -->
-
-      <!-- FEATURE TABS -->
-      <div class="featureTabs" style="grid-template-columns: repeat(5, 1fr);">
+      </div><div class="featureTabs" style="grid-template-columns: repeat(5, 1fr);">
         <div class="featTab" id="tab-watch" data-activity="watch">
           <span class="tIcon">🎬</span>
           <span class="tLabel">Watch Party</span>
@@ -142,12 +130,8 @@
         </div>
       </div>
 
-    </div><!-- /activitySection -->
+    </div><div class="videoSidebar" id="videoSidebar">
 
-    <!-- RIGHT: VIDEO SIDEBAR -->
-    <div class="videoSidebar" id="videoSidebar">
-
-      <!-- Local -->
       <div class="videoCard" id="localCard">
         <video id="localVideo" autoplay muted playsinline></video>
         <div class="videoOff" id="localOff">
@@ -164,7 +148,6 @@
         </div>
       </div>
 
-      <!-- Remote -->
       <div class="videoCard" id="remoteCard">
         <video id="remoteVideo" autoplay playsinline></video>
         <div class="remoteWaiting" id="remoteWaiting">
@@ -180,12 +163,7 @@
         </div>
       </div>
 
-    </div><!-- /videoSidebar -->
-
-  </div><!-- /mainLayout -->
-
-  <!-- ══ BOTTOM BAR ══ -->
-  <div class="bottomBar">
+    </div></div><div class="bottomBar">
     <div class="bbGroup">
       <button class="cBtn small" data-tip="Participants">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -263,10 +241,8 @@
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modalBox">
     <div class="modalIcon" id="modalIcon">📷</div>
