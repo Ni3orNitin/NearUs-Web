@@ -267,5 +267,18 @@
 </div>
 
 <script type="module" src="js/videoroom.js"></script>
+
+<div class="chatPanel" id="chatPanel">
+  <div class="chatHeader">
+    <h3>💬 Room Chat</h3>
+    <button id="closeChatBtn">—</button>
+  </div>
+  <div class="chatMessages" id="chatMessages"></div>
+  <div class="chatInputArea">
+    <input type="text" id="chatInput" placeholder="Type a message..." autocomplete="off">
+    <button id="sendChatBtn">Send</button>
+  </div>
+</div>
+<button class="cBtn small floatingChatToggle" id="toggleChatPanelBtn" data-tip="Open Chat">💬</button>
 </body>
 </html>

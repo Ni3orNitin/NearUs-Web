@@ -620,6 +620,8 @@
 //     remoteVideo
 // );
 
+
+
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -648,13 +650,21 @@ const micBtn = document.getElementById("micBtn");
 const camBtn = document.getElementById("camBtn");
 const toast = document.getElementById("toast");
 
+// Live Chat Bindings
+const chatPanel = document.getElementById("chatPanel");
+const chatMessages = document.getElementById("chatMessages");
+const chatInput = document.getElementById("chatInput");
+const sendChatBtn = document.getElementById("sendChatBtn");
+const closeChatBtn = document.getElementById("closeChatBtn");
+const toggleChatPanelBtn = document.getElementById("toggleChatPanelBtn");
+
 /* =========================================================================
    2. CONFIGURATION & STATE MANAGEMENT
    ========================================================================= */
 const params = new URLSearchParams(window.location.search);
 const roomId = params.get("room") || "NUS8921";
+const myClientId = Math.random().toString(36).substring(2, 9); // Distinct sender id tag
 
-// Inject active Room ID string into the template button
 if(roomCodeBtn) {
     roomCodeBtn.innerHTML = `
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -674,9 +684,55 @@ const servers = {
 
 const roomRef = ref(database, `rooms/${roomId}/calls`);
 const iceCandidatesRef = ref(database, `rooms/${roomId}/iceCandidates`);
+const chatRef = ref(database, `rooms/${roomId}/chat`);
 
 /* =========================================================================
-   3. WEBRTC CONNECTIVITY ENGINE
+   3. LIVE TEXT CHAT REPLICATION ENGINE
+   ========================================================================= */
+// Open/Close Chat UI Panels Safely
+toggleChatPanelBtn.onclick = () => {
+    chatPanel.classList.add("open");
+    toggleChatPanelBtn.style.display = "none";
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+};
+closeChatBtn.onclick = () => {
+    chatPanel.classList.remove("open");
+    toggleChatPanelBtn.style.display = "flex";
+};
+
+// Push fresh chat payloads up to Firebase
+function emitChatMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+
+    push(chatRef, {
+        sender: myClientId,
+        message: text,
+        timestamp: Date.now()
+    });
+    chatInput.value = "";
+}
+
+sendChatBtn.onclick = emitChatMessage;
+chatInput.onkeydown = (e) => { if (e.key === "Enter") emitChatMessage(); };
+
+// Listen for incoming messages added from ANY linked device
+onChildAdded(chatRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    const msgElement = document.createElement("div");
+    const isMe = data.sender === myClientId;
+    
+    msgElement.className = `msgBlock ${isMe ? "outgoing" : "incoming"}`;
+    msgElement.innerText = data.message;
+    
+    chatMessages.appendChild(msgElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Keep view scrolled down
+});
+
+/* =========================================================================
+   4. WEBRTC CONNECTIVITY ENGINE
    ========================================================================= */
 async function startCall() {
     try {
@@ -715,6 +771,7 @@ function setupSignaling() {
     }).then(async (result) => {
         const data = result.snapshot.val();
         if (data && data.status === "hosting" && !data.offer) {
+            console.log("Device 1 locked as Host.");
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
             await set(roomRef, {
@@ -729,6 +786,7 @@ function setupSignaling() {
         if (!data) return;
 
         if (data.offer && !peerConnection.currentRemoteDescription && data.status === "waiting-for-answer") {
+            console.log("Device 2 processing Host Offer...");
             await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
             const answer = await peerConnection.createAnswer();
             await peerConnection.setLocalDescription(answer);
@@ -738,6 +796,7 @@ function setupSignaling() {
                 status: "connected"
             });
         } else if (data.answer && !peerConnection.currentRemoteDescription) {
+            console.log("Completing Handshake loop...");
             await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
         }
     });
@@ -754,12 +813,11 @@ function setupSignaling() {
 startCall();
 
 /* =========================================================================
-   4. DYNAMIC INTERFACE TABS & PANE TOOGLE ACTIONS
+   5. DYNAMIC INTERFACE TABS & PANE TOGGLE ACTIONS
    ========================================================================= */
 const tabs = document.querySelectorAll(".featTab");
 const panes = [idlePane, screenPane, whiteboardPane, youtubePane, watchPane];
 
-// Bottom bar navigation buttons mapper
 const actionButtonMap = {
     "screenBtn": "screen",
     "wbBtn": "whiteboard",
@@ -768,20 +826,16 @@ const actionButtonMap = {
 
 Object.entries(actionButtonMap).forEach(([btnId, activityName]) => {
     const btn = document.getElementById(btnId);
-    if(btn) {
-        btn.addEventListener("click", () => switchActivity(activityName));
-    }
+    if(btn) btn.addEventListener("click", () => switchActivity(activityName));
 });
 
 tabs.forEach(tab => {
     tab.addEventListener("click", () => {
-        const targetActivity = tab.getAttribute("data-activity");
-        switchActivity(targetActivity);
+        switchActivity(tab.getAttribute("data-activity"));
     });
 });
 
 function switchActivity(activityName) {
-    // Reset panes and tabs
     panes.forEach(pane => { if(pane) pane.classList.remove("active"); });
     tabs.forEach(t => t.classList.remove("active"));
     Object.keys(actionButtonMap).forEach(id => {
@@ -789,23 +843,20 @@ function switchActivity(activityName) {
         if(el) el.classList.remove("active");
     });
 
-    // Make target pane active
     const activePane = document.getElementById(`${activityName}Pane`);
     const activeTab = document.getElementById(`tab-${activityName}`);
     
     if (activePane) activePane.classList.add("active");
     if (activeTab) activeTab.classList.add("active");
 
-    // Connect bottom small shortcuts highlight state
     const relatedBtnId = Object.keys(actionButtonMap).find(key => actionButtonMap[key] === activityName);
     if(relatedBtnId) document.getElementById(relatedBtnId).classList.add("active");
 
-    // Lazily evaluate child layout requirements
     if (activityName === "whiteboard") initWhiteboardEngine();
 }
 
 /* =========================================================================
-   5. WHITEBOARD DRAWING ENGINE
+   6. WHITEBOARD DRAWING ENGINE
    ========================================================================= */
 let isWbInitialized = false;
 function initWhiteboardEngine() {
@@ -821,9 +872,8 @@ function initWhiteboardEngine() {
     let drawing = false;
     let strokeColor = "#000000";
     let strokeSize = 4;
-    let toolMode = "pen"; // pen, eraser
+    let toolMode = "pen";
 
-    // Generate Palette Dot Array Elements dynamically inside container
     const colors = ["#000000", "#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#a855f7"];
     const colorsContainer = document.getElementById("wbColors");
     colorsContainer.innerHTML = "";
@@ -843,7 +893,6 @@ function initWhiteboardEngine() {
         colorsContainer.appendChild(dot);
     });
 
-    // Toolbar logic binds
     document.getElementById("wbPen").onclick = () => {
         toolMode = "pen";
         document.getElementById("wbPen").classList.add("active");
@@ -857,7 +906,6 @@ function initWhiteboardEngine() {
     document.getElementById("wbSizeSlider").oninput = (e) => strokeSize = e.target.value;
     document.getElementById("wbClearBtn").onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Canvas actions
     canvas.addEventListener("mousedown", () => drawing = true);
     canvas.addEventListener("mouseup", () => { drawing = false; ctx.beginPath(); });
     canvas.addEventListener("mousemove", (e) => {
@@ -875,7 +923,7 @@ function initWhiteboardEngine() {
 }
 
 /* =========================================================================
-   6. YOUTUBE / WATCH PARTY DELEGATIONS
+   7. YOUTUBE / WATCH PARTY DELEGATIONS
    ========================================================================= */
 document.getElementById("ytLoadBtn").onclick = () => {
     const urlVal = document.getElementById("ytUrl").value.trim();
@@ -910,7 +958,7 @@ if(videoFilePick) {
 }
 
 /* =========================================================================
-   7. HARDWARE MULTIMEDIA MODIFIERS & UTILITIES
+   8. HARDWARE MULTIMEDIA MODIFIERS & UTILITIES
    ========================================================================= */
 let micOn = true;
 micBtn.onclick = () => {
@@ -918,7 +966,6 @@ micBtn.onclick = () => {
     localStream.getAudioTracks().forEach(t => t.enabled = micOn);
     micBtn.classList.toggle("off", !micOn);
     localBars.classList.toggle("off", !micOn);
-    micBtn.setAttribute("data-tip", micOn ? "Mute Mic" : "Unmute Mic");
 };
 
 let camOn = true;
@@ -927,10 +974,8 @@ camBtn.onclick = () => {
     localStream.getVideoTracks().forEach(t => t.enabled = camOn);
     camBtn.classList.toggle("off", !camOn);
     localOff.style.display = camOn ? "none" : "flex";
-    camBtn.setAttribute("data-tip", camOn ? "Stop Camera" : "Start Camera");
 };
 
-// Clipboard Room Share Launcher
 roomCodeBtn.onclick = async () => {
     await navigator.clipboard.writeText(window.location.href);
     showToast("Room link copied to clipboard! 📋");
@@ -942,7 +987,6 @@ function showToast(msg) {
     setTimeout(() => toast.classList.remove("show"), 2500);
 }
 
-// Reaction Launcher Particle Generator
 const reactBtn = document.getElementById("reactBtn");
 const emojisList = ["🍿", "🔥", "😂", "👏", "🎉"];
 if(reactBtn) {
@@ -957,9 +1001,6 @@ if(reactBtn) {
     };
 }
 
-/* =========================================================================
-   8. DISCONNECTION ROUTERS
-   ========================================================================= */
 const leaveApp = () => { window.location.href = "home.html"; };
 if(leaveBtn) leaveBtn.onclick = leaveApp;
 if(endCallBtn) endCallBtn.onclick = () => { alert("Call Ended"); leaveApp(); };
