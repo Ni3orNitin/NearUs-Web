@@ -624,7 +624,6 @@
 
 
 
-
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -926,7 +925,7 @@ function launchGameZoneUI() {
 }
 
 /* =========================================================================
-   6. YOUTUBE SHARED ROOM PLAYBACK SYNCHRONIZATION ENGINE
+   6. YOUTUBE SHARED PLAYBACK SYNCHRONIZATION ENGINE
    ========================================================================= */
 let ytPlayer = null;
 let isYtApiLoaded = false;

@@ -10,6 +10,7 @@
 <body>
 <div class="app">
 
+  <!-- ══ TOP BAR ══ -->
   <div class="topBar">
     <div class="logo">
       <div class="logo-dot"></div>
@@ -34,23 +35,28 @@
     </div>
   </div>
 
+  <!-- ══ MAIN ══ -->
   <div class="mainLayout">
 
+    <!-- LEFT: ACTIVITY -->
     <div class="activitySection">
 
       <div class="activityWindow" id="activityWindow">
 
+        <!-- Idle -->
         <div class="idlePane" id="idlePane">
           <div class="idleIcon">✨</div>
           <div class="idleTitle">Shared Activity Zone</div>
           <div class="idleDesc">Pick an activity below to get started</div>
         </div>
 
+        <!-- Screen Share -->
         <div class="actPane" id="screenPane">
           <div class="screenBadge"><div class="live"></div>Screen Sharing</div>
           <video id="screenVideo" autoplay playsinline muted></video>
         </div>
 
+        <!-- Whiteboard -->
         <div class="actPane" id="whiteboardPane">
           <canvas id="wbCanvas"></canvas>
           <div class="wbToolbar">
@@ -72,6 +78,7 @@
           </div>
         </div>
 
+        <!-- YouTube -->
         <div class="actPane" id="youtubePane">
           <div class="ytSearchBar">
             <input class="ytInput" id="ytUrl" type="text" placeholder="Paste YouTube URL or video ID…"/>
@@ -92,6 +99,7 @@
           </div>
         </div>
 
+        <!-- Watch Party -->
         <div class="actPane" id="watchPane">
           <div id="watchFilePicker">
             <svg viewBox="0 0 24 24" fill="none">
@@ -105,9 +113,13 @@
           <video id="watchVideo" controls></video>
         </div>
 
+        <!-- Games Section Pane -->
         <div class="actPane" id="gamesPane"></div>
 
-      </div><div class="featureTabs" style="grid-template-columns: repeat(5, 1fr);">
+      </div><!-- /activityWindow -->
+
+      <!-- FEATURE TABS -->
+      <div class="featureTabs" style="grid-template-columns: repeat(5, 1fr);">
         <div class="featTab" id="tab-watch" data-activity="watch">
           <span class="tIcon">🎬</span>
           <span class="tLabel">Watch Party</span>
@@ -130,8 +142,12 @@
         </div>
       </div>
 
-    </div><div class="videoSidebar" id="videoSidebar">
+    </div><!-- /activitySection -->
 
+    <!-- RIGHT: VIDEO SIDEBAR -->
+    <div class="videoSidebar" id="videoSidebar">
+
+      <!-- Local -->
       <div class="videoCard" id="localCard">
         <video id="localVideo" autoplay muted playsinline></video>
         <div class="videoOff" id="localOff">
@@ -148,6 +164,7 @@
         </div>
       </div>
 
+      <!-- Remote -->
       <div class="videoCard" id="remoteCard">
         <video id="remoteVideo" autoplay playsinline></video>
         <div class="remoteWaiting" id="remoteWaiting">
@@ -163,7 +180,12 @@
         </div>
       </div>
 
-    </div></div><div class="bottomBar">
+    </div><!-- /videoSidebar -->
+
+  </div><!-- /mainLayout -->
+
+  <!-- ══ BOTTOM BAR ══ -->
+  <div class="bottomBar">
     <div class="bbGroup">
       <button class="cBtn small" data-tip="Participants">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -209,7 +231,12 @@
           <path d="M8 6l10 6-10 6V6z" fill="#ff6b6b"/>
         </svg>
       </button>
-      <button class="cBtn small" data-tip="Games 🎮" id="gamesBtn" style="display:none;"></button>
+      <button class="cBtn small" data-tip="Games 🎮" id="gamesBtn">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V7z"/>
+          <path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/>
+        </svg>
+      </button>
       <div class="bbSep"></div>
       <button class="cBtn small" data-tip="Reactions 🎉" id="reactBtn">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -234,8 +261,12 @@
     </div>
   </div>
 
-</div><div class="toast" id="toast"></div>
+</div>
 
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modalBox">
     <div class="modalIcon" id="modalIcon">📷</div>
