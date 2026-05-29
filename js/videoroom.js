@@ -631,8 +631,11 @@ import { ref, set, onValue, push, onChildAdded, runTransaction } from "https://w
 const localVideo = document.getElementById("localVideo");
 const remoteVideo = document.getElementById("remoteVideo");
 const localOff = document.getElementById("localOff");
+// FIX: Bind to the correct IDs from your new HTML template
+const remoteCard = document.getElementById("remoteCard"); 
 const remoteWaiting = document.getElementById("remoteWaiting");
 const remoteOverlay = document.getElementById("remoteOverlay");
+
 const localBars = document.getElementById("localBars");
 const remoteBars = document.getElementById("remoteBars");
 
@@ -747,6 +750,8 @@ async function startCall() {
                 remoteVideo.srcObject = event.streams[0];
                 if(remoteWaiting) remoteWaiting.style.display = "none";
                 if(remoteOverlay) remoteOverlay.style.display = "flex";
+
+                console.log("Remote video track attached successfully!");
             }
         };
 
