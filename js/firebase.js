@@ -19,14 +19,17 @@ import {
 from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
 import {
-
     getDatabase,
     ref,
-    set
-
+    set,
+    get,
+    push,
+    onValue,
+    remove
 }
-
 from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+
 
 // FIREBASE CONFIG
 
@@ -59,8 +62,6 @@ const provider = new GoogleAuthProvider();
 
 const database = getDatabase(app);
 
-// EXPORT
-
 export {
 
     auth,
@@ -74,6 +75,10 @@ export {
     onAuthStateChanged,
 
     ref,
-    set
+    set,
+    get,
+    push,
+    onValue,
+    remove
 
 };
