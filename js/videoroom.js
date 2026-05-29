@@ -623,7 +623,6 @@
 
 
 
-
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -781,6 +780,7 @@ async function initializeRoomPresence() {
             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
         }
 
+        // CRITICAL: Initialize local video streaming FIRST
         await startCall();
     });
 }
@@ -801,6 +801,7 @@ async function startCall() {
                 if (remoteUserLabel) {
                     remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
                 }
+                console.log("WebRTC Peer Stream connected successfully.");
             }
         };
 
