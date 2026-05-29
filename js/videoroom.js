@@ -621,6 +621,12 @@
 // );
 
 
+
+
+
+
+
+
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -687,7 +693,6 @@ if (waitRoomCodeDisplay) {
 let localStream = null;
 let peerConnection = null;
 
-// FIX: Expanded Production STUN cluster pool to penetrate cellular symmetric NAT routers
 const servers = {
     iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
@@ -789,7 +794,7 @@ async function initializeRoomPresence() {
             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
         }
 
-        // Initialize local video streaming pipeline
+        // Initialize local video streaming pipeline immediately
         await startCall();
     });
 }
@@ -810,7 +815,7 @@ async function startCall() {
                 if (remoteUserLabel) {
                     remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
                 }
-                console.log("WebRTC Peer Stream connected successfully.");
+                console.log("WebRTC Remote Stream connected.");
             }
         };
 
@@ -945,27 +950,37 @@ function initYouTubeSyncEngine() {
     if (isYtApiLoaded) return;
     isYtApiLoaded = true;
 
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api";
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    // Fix: Load API script safely without blocking active WebRTC media streams
+    if (!window.YT) {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    } else {
+        buildYTIframeInstance();
+    }
 
     window.onYouTubeIframeAPIReady = () => {
-        ytPlayer = new YT.Player('ytPlayer', {
-            height: '100%',
-            width: '100%',
-            videoId: '', 
-            playerVars: {
-                'playsinline': 1,
-                'controls': 1,
-                'rel': 0
-            },
-            events: {
-                'onStateChange': handlePlayerStateChange
-            }
-        });
-        listenToFirebaseYTSync();
+        buildYTIframeInstance();
     };
+}
+
+function buildYTIframeInstance() {
+    if (ytPlayer) return;
+    ytPlayer = new YT.Player('ytPlayer', {
+        height: '100%',
+        width: '100%',
+        videoId: '', 
+        playerVars: {
+            'playsinline': 1,
+            'controls': 1,
+            'rel': 0
+        },
+        events: {
+            'onStateChange': handlePlayerStateChange
+        }
+    });
+    listenToFirebaseYTSync();
 }
 
 function handlePlayerStateChange(event) {
