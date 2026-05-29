@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NearUs Games - Co-op Snake</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { background: #04080f; color: #fff; font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+    h3 { margin: 5px 0; color: #10b981; }
+    #scoreBoard { margin-bottom: 10px; font-size: 14px; color: #6b7db3; display: flex; gap: 20px; }
+    canvas { background: #080e1c; border: 2px solid #10b981; border-radius: 12px; box-shadow: 0 12px 36px rgba(0,0,0,0.6); }
+  </style>
+</head>
+<body>
+
+  <h3>🐍 Co-op Multiplayer Snake</h3>
+  <div id="scoreBoard">
+    <span id="p1Score">Host Score: 0</span>
+    <span id="p2Score">Guest Score: 0</span>
+  </div>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+  <script type="module">
+    import { database } from "../js/firebase.js";
+    import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get("room") || "NUS8921";
+    const myClientId = Math.random().toString(36).substring(2, 9);
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const grid = 20;
+
+    let assignedRole = "guest";
+    let mySnake = [{x: 160, y: 200}];
+    let peerSnake = [{x: 240, y: 200}];
+    let food = {x: 200, y: 100};
+    let dx = grid, dy = 0;
+
+    const mySnakeRef = ref(database, `rooms/${roomId}/games/snake/players/${myClientId}`);
+    const foodRef = ref(database, `rooms/${roomId}/games/snake/food`);
+
+    onValue(ref(database, `rooms/${roomId}/users`), (snapshot) => {
+        const users = snapshot.val();
+        if (users && users.host === myClientId) {
+            assignedRole = "host";
+            mySnake = [{x: 80, y: 200}];
+        }
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && dx === 0)  { dx = -grid; dy = 0; }
+      if (e.key === "ArrowRight" && dx === 0) { dx = grid;  dy = 0; }
+      if (e.key === "ArrowUp" && dy === 0)    { dx = 0;     dy = -grid; }
+      if (e.key === "ArrowDown" && dy === 0)  { dx = 0;     dy = grid; }
+    });
+
+    function gameLoop() {
+      setTimeout(() => {
+        requestAnimationFrame(gameLoop);
+        
+        // Advance vector head segment positioning elements
+        const head = { x: mySnake[0].x + dx, y: mySnake[0].y + dy };
+        
+        // Canvas wrap boundary validations 
+        if (head.x < 0) head.x = canvas.width - grid;
+        else if (head.x >= canvas.width) head.x = 0;
+        if (head.y < 0) head.y = canvas.height - grid;
+        else if (head.y >= canvas.height) head.y = 0;
+
+        mySnake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+          // Relocate food coordinates if a player registers a collision match
+          const newFood = {
+            x: Math.floor(Math.random() * (canvas.width / grid)) * grid,
+            y: Math.floor(Math.random() * (canvas.height / grid)) * grid
+          };
+          set(foodRef, newFood);
+        } else {
+          mySnake.pop();
+        }
+
+        // Publish updated coordinates back to room channel tree hierarchy
+        set(mySnakeRef, mySnake);
+        draw();
+      }, 130);
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Render fruit item layout targets
+      ctx.fillStyle = "#f43f5e";
+      ctx.fillRect(food.x, food.y, grid - 2, grid - 2);
+
+      // Render local player elements (Green)
+      ctx.fillStyle = "#10b981";
+      mySnake.forEach(s => ctx.fillRect(s.x, s.y, grid - 2, grid - 2));
+
+      // Render room peer vectors (Purple)
+      ctx.fillStyle = "#a855f7";
+      peerSnake.forEach(s => ctx.fillRect(s.x, s.y, grid - 2, grid - 2));
+    }
+
+    // Dynamic database ingestion listener pipelines
+    onValue(ref(database, `rooms/${roomId}/games/snake/players`), (snapshot) => {
+      const players = snapshot.val();
+      if (players) {
+        Object.keys(players).forEach(id => {
+          if (id !== myClientId) peerSnake = players[id];
+        });
+      }
+    });
+
+    onValue(foodRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) food = data;
+    });
+
+    gameLoop();
+  </script>
+</body>
+</html>

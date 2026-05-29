@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NearUs Games - Uno Cards</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body { background: #04080f; color: #fff; font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+    #workspace { text-align: center; max-width: 600px; width: 100%; }
+    .pile-container { display: flex; justify-content: center; gap: 40px; margin-bottom: 30px; }
+    .card { width: 70px; height: 110px; border-radius: 8px; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5); box-shadow: 0 6px 18px rgba(0,0,0,0.4); cursor: pointer; }
+    .deck { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; }
+    #hand { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 20px; padding: 10px; background: rgba(255,255,255,0.03); border-radius: 12px; min-height: 130px; }
+    #status { font-size: 14px; color: #ec4899; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+  <div id="workspace">
+    <div id="status">Connecting turn queues...</div>
+    
+    <div class="pile-container">
+      <div>
+        <p style="font-size:12px; color:#6b7db3;">Draw Deck</p>
+        <div class="card deck" id="drawDeckBtn">+1</div>
+      </div>
+      <div>
+        <p style="font-size:12px; color:#6b7db3;">Discard Pile</p>
+        <div class="card" id="discardPile">7</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px; color:#6b7db3; text-align:left; margin-left:15px;">Your Hand:</p>
+    <div id="hand"></div>
+  </div>
+
+  <script type="module">
+    import { database } from "../js/firebase.js";
+    import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get("room") || "NUS8921";
+    const myClientId = Math.random().toString(36).substring(2, 9);
+
+    const unoRef = ref(database, `rooms/${roomId}/games/uno`);
+    const statusEl = document.getElementById("status");
+    const discardEl = document.getElementById("discardPile");
+    const handContainer = document.getElementById("hand");
+    const drawBtn = document.getElementById("drawDeckBtn");
+
+    let myHand = [
+      { color: "#10b981", val: "3" },
+      { color: "#3b82f6", val: "5" },
+      { color: "#ef4444", val: "R" },
+      { color: "#f59e0b", val: "8" }
+    ];
+
+    let currentTopCard = { color: "#ef4444", val: "7" };
+    let turnRole = "host";
+    let assignedRole = "spectator";
+
+    onValue(ref(database, `rooms/${roomId}/users`), (snapshot) => {
+        const users = snapshot.val();
+        if (users) {
+            assignedRole = (users.host === myClientId) ? "host" : "guest";
+            updateUI();
+        }
+    });
+
+    function updateUI() {
+      statusEl.innerText = `Role: ${assignedRole.toUpperCase()} | Current Turn: ${turnRole.toUpperCase()}`;
+      discardEl.style.backgroundColor = currentTopCard.color;
+      discardEl.innerText = currentTopCard.val;
+
+      handContainer.innerHTML = "";
+      myHand.forEach((card, idx) => {
+        const cardEl = document.createElement("div");
+        cardEl.className = "card";
+        cardEl.style.backgroundColor = card.color;
+        cardEl.innerText = card.val;
+        cardEl.onclick = () => tryPlayCard(idx);
+        handContainer.appendChild(cardEl);
+      });
+    }
+
+    function tryPlayCard(index) {
+      if (assignedRole !== turnRole) {
+        alert("Wait for your turn!");
+        return;
+      }
+      const card = myHand[index];
+      
+      // Match rules checking criteria patterns (Color matching or Value matching)
+      if (card.color === currentTopCard.color || card.val === currentTopCard.val) {
+        currentTopCard = card;
+        myHand.splice(index, 1);
+        turnRole = (turnRole === "host") ? "guest" : "host";
+
+        set(unoRef, { topCard: currentTopCard, activeTurn: turnRole, sender: myClientId });
+        updateUI();
+        
+        if(myHand.length === 0) {
+            alert("UNO! You won the game! 🎉");
+        }
+      } else {
+        alert("Invalid move! Card must match color or value symbol.");
+      }
+    }
+
+    drawBtn.onclick = () => {
+      if (assignedRole !== turnRole) return;
+      const colors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b"];
+      const vals = ["0","1","2","3","4","5","6","7","8","9","Skip"];
+      
+      // Push generated items directly to local array list
+      myHand.push({
+        color: colors[Math.floor(Math.random() * colors.length)],
+        val: vals[Math.floor(Math.random() * vals.length)]
+      });
+      
+      turnRole = (turnRole === "host") ? "guest" : "host";
+      set(unoRef, { topCard: currentTopCard, activeTurn: turnRole, sender: myClientId });
+      updateUI();
+    };
+
+    onValue(unoRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        currentTopCard = data.topCard;
+        turnRole = data.activeTurn;
+        updateUI();
+      }
+    });
+  </script>
+</body>
+</html>

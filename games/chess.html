@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NearUs Games - Chess</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { background: #04080f; color: #fff; font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+    h3 { margin-bottom: 10px; color: #c084fc; font-size: 18px; }
+    #status { margin-bottom: 15px; font-size: 14px; color: #6b7db3; }
+    #board { display: grid; grid-template-columns: repeat(8, 50px); grid-template-rows: repeat(8, 50px); border: 4px solid #0c1427; border-radius: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+    .square { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 32px; cursor: pointer; user-select: none; }
+    .light { background: #f0d9b5; color: #b58863; }
+    .dark { background: #b58863; color: #f0d9b5; }
+    .selected { background: #a855f7 !important; }
+  </style>
+</head>
+<body>
+
+  <h3>👑 Multiplayer Chess Workspace</h3>
+  <div id="status">Connecting to room partner...</div>
+  <div id="board"></div>
+
+  <script type="module">
+    import { database } from "../js/firebase.js";
+    import { ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const roomId = params.get("room") || "NUS8921";
+    const myClientId = Math.random().toString(36).substring(2, 9);
+
+    const gameRef = ref(database, `rooms/${roomId}/games/chess`);
+    const boardEl = document.getElementById("board");
+    const statusEl = document.getElementById("status");
+
+    // Classical starting layout configurations mapped using native unicodes
+    let boardState = [
+      ['♜','♞','♝','♛','♚','♝','♞','♜'],
+      ['♟','♟','♟','♟','♟','♟','♟','♟'],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['','','','','','','',''],
+      ['♙','♙','♙','♙','♙','♙','♙','♙'],
+      ['♖','♘','♗','♕','♔','♗','♘','♖']
+    ];
+
+    let selectedSquare = null;
+    let turn = "host"; 
+    let assignedRole = "spectator";
+
+    // Establish dynamic player assignments via room user node checking
+    onValue(ref(database, `rooms/${roomId}/users`), (snapshot) => {
+        const users = snapshot.val();
+        if (users) {
+            if (users.host && !users.guest) assignedRole = "host";
+            else if (users.guest) assignedRole = "guest";
+            statusEl.innerText = `Your Role: ${assignedRole} | Turn: ${turn.toUpperCase()}`;
+        }
+    });
+
+    function createBoard() {
+      boardEl.innerHTML = "";
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const square = document.createElement("div");
+          square.className = `square ${(r + c) % 2 === 0 ? 'light' : 'dark'}`;
+          square.dataset.row = r;
+          square.dataset.col = c;
+          square.innerText = boardState[r][c];
+          square.onclick = () => handleSquareClick(r, c);
+          boardEl.appendChild(square);
+        }
+      }
+    }
+
+    function handleSquareClick(r, c) {
+      if ((assignedRole === "host" && turn !== "host") || (assignedRole === "guest" && turn !== "guest")) {
+         alert("It is not your turn yet!");
+         return;
+      }
+
+      if (selectedSquare) {
+        const prevR = selectedSquare.r;
+        const prevC = selectedSquare.c;
+        
+        if (prevR === r && prevC === c) {
+          selectedSquare = null;
+          createBoard();
+          return;
+        }
+
+        // Apply shift step transformations inside matrix paths
+        boardState[r][c] = boardState[prevR][prevC];
+        boardState[prevR][prevC] = "";
+        selectedSquare = null;
+        turn = (turn === "host") ? "guest" : "host";
+
+        // Sync new frame positions directly to database grid
+        set(gameRef, { board: boardState, nextTurn: turn, sender: myClientId });
+      } else {
+        if (boardState[r][c] !== "") {
+          selectedSquare = { r, c };
+          createBoard();
+          const index = r * 8 + c;
+          boardEl.children[index].classList.add("selected");
+        }
+      }
+    }
+
+    onValue(gameRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        boardState = data.board;
+        turn = data.nextTurn;
+        if (assignedRole !== "spectator") {
+            statusEl.innerText = `Your Role: ${assignedRole.toUpperCase()} | Turn: ${turn.toUpperCase()}`;
+        }
+        createBoard();
+      }
+    });
+
+    createBoard();
+  </script>
+</body>
+</html>

@@ -93,21 +93,24 @@
         </div>
 
         <div class="actPane" id="watchPane">
+          <input type="file" id="videoFilePick" accept="video/*" style="display: none !important;">
+          
           <div id="watchFilePicker">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M15 10l4.553-2.07A1 1 0 0121 8.863v6.274a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"
                 stroke="white" stroke-width="1.5"/>
             </svg>
             <p>Load a video file for your watch party</p>
-            <button class="filePickBtn" id="filePickBtn">Choose Video File</button>
-            <input type="file" id="videoFilePick" accept="video/*">
+            <button class="filePickBtn" id="filePickBtn" type="button">Choose Video File</button>
           </div>
-          <video id="watchVideo" controls></video>
+          <video id="watchVideo" controls playsinline style="display: none; width: 100%; height: 100%; object-fit: contain; background: #000;"></video>
         </div>
 
         <div class="actPane" id="gamesPane"></div>
 
-      </div><div class="featureTabs" style="grid-template-columns: repeat(5, 1fr);">
+      </div>
+      
+      <div class="featureTabs" style="grid-template-columns: repeat(5, 1fr);">
         <div class="featTab" id="tab-watch" data-activity="watch">
           <span class="tIcon">🎬</span>
           <span class="tLabel">Watch Party</span>
@@ -130,8 +133,9 @@
         </div>
       </div>
 
-    </div><div class="videoSidebar" id="videoSidebar">
+    </div>
 
+    <div class="videoSidebar" id="videoSidebar">
       <div class="videoCard" id="localCard">
         <video id="localVideo" autoplay muted playsinline></video>
         <div class="videoOff" id="localOff">
@@ -162,8 +166,11 @@
           </div>
         </div>
       </div>
+    </div>
 
-    </div></div><div class="bottomBar">
+  </div>
+
+  <div class="bottomBar">
     <div class="bbGroup">
       <button class="cBtn small" data-tip="Participants">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -242,18 +249,6 @@
 </div>
 
 <div class="toast" id="toast"></div>
-
-<div class="modal" id="modal">
-  <div class="modalBox">
-    <div class="modalIcon" id="modalIcon">📷</div>
-    <div class="modalTitle" id="modalTitle">Camera Access</div>
-    <div class="modalDesc"  id="modalDesc">Allow NearUs to access your camera and microphone.</div>
-    <div class="modalBtns">
-      <button class="mBtn primary"   id="modalOk">Got it</button>
-      <button class="mBtn secondary" id="modalClose">Dismiss</button>
-    </div>
-  </div>
-</div>
 
 <script type="module" src="js/videoroom.js"></script>
 
