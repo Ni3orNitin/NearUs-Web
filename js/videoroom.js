@@ -41,9 +41,6 @@ const sendChatBtn = document.getElementById("sendChatBtn");
 const closeChatBtn = document.getElementById("closeChatBtn");
 const toggleChatPanelBtn = document.getElementById("toggleChatPanelBtn");
 
-const modal = document.getElementById("modal");
-const modalOk = document.getElementById("modalOk");
-
 /* =========================================================================
    2. CONFIGURATION & STATE MANAGEMENT
    ========================================================================= */
@@ -168,8 +165,10 @@ async function initializeRoomPresence() {
             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
         }
 
-        // Initialize local video streaming pipeline immediately
-        await startCall();
+        // Only launch tracking channels if user has media execution rights
+        if (myRole === "Host" || myRole === "Guest") {
+            await startCall();
+        }
     });
 }
 
@@ -178,13 +177,11 @@ async function startCall() {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localVideo.srcObject = localStream;
 
-        // FIX: Ensure placeholder camera block is explicitly hidden once stream turns on
-        if (localOff) localOff.style.display = "none";
-
         peerConnection = new RTCPeerConnection(servers);
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
         peerConnection.ontrack = (event) => {
+            console.log("Remote track detected:", event.streams);
             if (event.streams && event.streams[0]) {
                 remoteVideo.srcObject = event.streams[0];
                 if (remoteWaiting) remoteWaiting.style.display = "none";
@@ -192,7 +189,7 @@ async function startCall() {
                 if (remoteUserLabel) {
                     remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
                 }
-                console.log("WebRTC Remote Stream connected.");
+                console.log("WebRTC Remote Stream successfully mounted.");
             }
         };
 
@@ -222,6 +219,7 @@ async function executeWebRTCHandshake() {
         onValue(roomRef, async (snapshot) => {
             const data = snapshot.val();
             if (data && data.answer && !peerConnection.currentRemoteDescription) {
+                console.log("Host processing remote session description...");
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
             }
         });
@@ -232,36 +230,30 @@ async function executeWebRTCHandshake() {
             if (!data) return;
 
             if (data.offer && !peerConnection.currentRemoteDescription) {
+                console.log("Guest processing remote session description...");
                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
-                await set(roomRef, { offer: data.offer, answer: { type: answer.type, sdp: answer.sdp } });
+                
+                // FIXED: Isolated path update avoids wiping or cross-triggering synchronization flags
+                const answerRef = ref(database, `rooms/${roomId}/calls/answer`);
+                await set(answerRef, { type: answer.type, sdp: answer.sdp });
             }
         });
     }
 
     onChildAdded(iceCandidatesRef, (snapshot) => {
         const item = snapshot.val();
-        if (item && item.senderRole !== myRole && peerConnection.remoteDescription) {
-            peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate))
-                .catch(e => console.error("Candidate injection failure:", e));
+        if (item && item.senderRole !== myRole) {
+            if (peerConnection.remoteDescription) {
+                peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate))
+                    .catch(e => console.error("Candidate injection failure:", e));
+            }
         }
     });
 }
 
-// FIX: Initialize the room call process only after explicit user interaction on the onboarding modal modal
-if (modalOk) {
-    modalOk.onclick = () => {
-        if (modal) modal.style.display = "none";
-        initializeRoomPresence();
-    };
-}
-const modalClose = document.getElementById("modalClose");
-if (modalClose) {
-    modalClose.onclick = () => {
-        if (modal) modal.style.display = "none";
-    };
-}
+initializeRoomPresence();
 
 /* =========================================================================
    5. DYNAMIC INTERFACE TABS & PANE TOGGLE ACTIONS
@@ -461,51 +453,35 @@ function initWhiteboardEngine() {
 
     const colors = ["#000000", "#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#a855f7"];
     const colorsContainer = document.getElementById("wbColors");
-    if (colorsContainer) {
-        colorsContainer.innerHTML = "";
-        colors.forEach((color, idx) => {
-            const dot = document.createElement("div");
-            dot.className = `colorDot ${idx === 0 ? "selected" : ""}`;
-            dot.style.backgroundColor = color;
-            dot.addEventListener("click", () => {
-                document.querySelectorAll(".colorDot").forEach(d => d.classList.remove("selected"));
-                dot.classList.add("selected");
-                strokeColor = color;
-                toolMode = "pen";
-                if(document.getElementById("wbPen")) document.getElementById("wbPen").classList.add("active");
-                if(document.getElementById("wbEraser")) document.getElementById("wbEraser").classList.remove("active");
-            });
-            colorsContainer.appendChild(dot);
-        });
-    }
-
-    if(document.getElementById("wbPen")) {
-        document.getElementById("wbPen").onclick = () => {
+    colorsContainer.innerHTML = "";
+    
+    colors.forEach((color, idx) => {
+        const dot = document.createElement("div");
+        dot.className = `colorDot ${idx === 0 ? "selected" : ""}`;
+        dot.style.backgroundColor = color;
+        dot.addEventListener("click", () => {
+            document.querySelectorAll(".colorDot").forEach(d => d.classList.remove("selected"));
+            dot.classList.add("selected");
+            strokeColor = color;
             toolMode = "pen";
             document.getElementById("wbPen").classList.add("active");
-            if(document.getElementById("wbEraser")) document.getElementById("wbEraser").classList.remove("active");
-        };
-    }
-    if(document.getElementById("wbEraser")) {
-        document.getElementById("wbEraser").onclick = () => {
-            toolMode = "eraser";
-            document.getElementById("wbEraser").classList.add("active");
-            if(document.getElementById("wbPen")) document.getElementById("wbPen").classList.remove("active");
-        };
-    }
-
-    // FIX: Add safe listeners to avoid element missing exceptions
-    ["wbLine", "wbRect", "wbCircle"].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.onclick = () => { toolMode = id.replace("wb", "").toLowerCase(); };
+            document.getElementById("wbEraser").classList.remove("active");
+        });
+        colorsContainer.appendChild(dot);
     });
 
-    if(document.getElementById("wbSizeSlider")) {
-        document.getElementById("wbSizeSlider").oninput = (e) => strokeSize = e.target.value;
-    }
-    if(document.getElementById("wbClearBtn")) {
-        document.getElementById("wbClearBtn").onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    document.getElementById("wbPen").onclick = () => {
+        toolMode = "pen";
+        document.getElementById("wbPen").classList.add("active");
+        document.getElementById("wbEraser").classList.remove("active");
+    };
+    document.getElementById("wbEraser").onclick = () => {
+        toolMode = "eraser";
+        document.getElementById("wbEraser").classList.add("active");
+        document.getElementById("wbPen").classList.remove("active");
+    };
+    document.getElementById("wbSizeSlider").oninput = (e) => strokeSize = e.target.value;
+    document.getElementById("wbClearBtn").onclick = () => ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     canvas.addEventListener("mousedown", () => drawing = true);
     canvas.addEventListener("mouseup", () => { drawing = false; ctx.beginPath(); });
@@ -547,34 +523,27 @@ if(videoFilePick) {
    9. HARDWARE MULTIMEDIA MODIFIERS & UTILITIES
    ========================================================================= */
 let micOn = true;
-if(micBtn) {
-    micBtn.onclick = () => {
-        micOn = !micOn;
-        if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
-        micBtn.classList.toggle("off", !micOn);
-        if(localBars) localBars.classList.toggle("off", !micOn);
-    };
-}
+micBtn.onclick = () => {
+    micOn = !micOn;
+    if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+    micBtn.classList.toggle("off", !micOn);
+    localBars.classList.toggle("off", !micOn);
+};
 
 let camOn = true;
-if(camBtn) {
-    camBtn.onclick = () => {
-        camOn = !camOn;
-        if (localStream) localStream.getVideoTracks().forEach(t => t.enabled = camOn);
-        camBtn.classList.toggle("off", !camOn);
-        if(localOff) localOff.style.display = camOn ? "none" : "flex";
-    };
-}
+camBtn.onclick = () => {
+    camOn = !camOn;
+    if (localStream) localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+    camBtn.classList.toggle("off", !camOn);
+    localOff.style.display = camOn ? "none" : "flex";
+};
 
-if(roomCodeBtn) {
-    roomCodeBtn.onclick = async () => {
-        await navigator.clipboard.writeText(window.location.href);
-        showToast("Room link copied to clipboard! 📋");
-    };
-}
+roomCodeBtn.onclick = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    showToast("Room link copied to clipboard! 📋");
+};
 
 function showToast(msg) {
-    if(!toast) return;
     toast.innerText = msg;
     toast.classList.add("show");
     setTimeout(() => toast.classList.remove("show"), 2500);

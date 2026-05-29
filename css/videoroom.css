@@ -977,7 +977,7 @@ body {
   background: var(--card);
   border: 1px solid var(--border2);
   border-radius: 16px;
-  display: none; /* Toggled via JS */
+  display: none; 
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 12px 40px rgba(0,0,0,0.5);
