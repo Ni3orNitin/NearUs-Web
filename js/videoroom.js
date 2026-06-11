@@ -1298,6 +1298,754 @@
 
 
 
+
+
+
+// import { database } from "./firebase.js";
+// import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+// /* =========================================================================
+//    1. DOM ELEMENT BINDINGS
+//    ========================================================================= */
+// const localVideo = document.getElementById("localVideo");
+// const remoteVideo = document.getElementById("remoteVideo");
+// const localOff = document.getElementById("localOff");
+// const localRoleTag = document.getElementById("localRoleTag");
+
+// const remoteCard = document.getElementById("remoteCard");
+// const remoteWaiting = document.getElementById("remoteWaiting");
+// const remoteOverlay = document.getElementById("remoteOverlay");
+// const remoteUserLabel = document.getElementById("remoteUserLabel");
+// const waitRoomCodeDisplay = document.getElementById("waitRoomCodeDisplay");
+
+// const localBars = document.getElementById("localBars");
+// const remoteBars = document.getElementById("remoteBars");
+
+// const activityWindow = document.getElementById("activityWindow");
+// const idlePane = document.getElementById("idlePane");
+// const screenPane = document.getElementById("screenPane");
+// const whiteboardPane = document.getElementById("whiteboardPane");
+// const youtubePane = document.getElementById("youtubePane");
+// const watchPane = document.getElementById("watchPane");
+// const gamesPane = document.getElementById("gamesPane");
+
+// const roomCodeBtn = document.getElementById("roomCodeBtn");
+// const leaveBtn = document.getElementById("leaveBtn");
+// const endCallBtn = document.getElementById("endCallBtn");
+// const micBtn = document.getElementById("micBtn");
+// const camBtn = document.getElementById("camBtn");
+// const toast = document.getElementById("toast");
+
+// // Live Chat Bindings
+// const chatPanel = document.getElementById("chatPanel");
+// const chatMessages = document.getElementById("chatMessages");
+// const chatInput = document.getElementById("chatInput");
+// const sendChatBtn = document.getElementById("sendChatBtn");
+// const closeChatBtn = document.getElementById("closeChatBtn");
+// const toggleChatPanelBtn = document.getElementById("toggleChatPanelBtn");
+
+// /* =========================================================================
+//    2. CONFIGURATION & STATE MANAGEMENT
+//    ========================================================================= */
+// const params = new URLSearchParams(window.location.search);
+// const roomId = params.get("room") || "NUS8921";
+// const myClientId = Math.random().toString(36).substring(2, 9);
+
+// let myRole = null;
+
+// if (roomCodeBtn) {
+//     roomCodeBtn.innerHTML = `
+//         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+//           <rect x="9" y="9" width="13" height="13" rx="2"/>
+//           <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+//         </svg> ${roomId}`;
+// }
+// if (waitRoomCodeDisplay) {
+//     waitRoomCodeDisplay.innerText = `Share room code: ${roomId}`;
+// }
+
+// let localStream = null;
+// let peerConnection = null;
+// let screenStream = null;
+
+// const servers = {
+//     iceServers: [
+//         { urls: "stun:stun.l.google.com:19302" },
+//         { urls: "stun:stun1.l.google.com:19302" }
+//     ],
+//     iceCandidatePoolSize: 10
+// };
+
+// // Database Signaling Targets
+// const roomRef = ref(database, `rooms/${roomId}/calls`);
+// const usersRef = ref(database, `rooms/${roomId}/users`);
+// const iceCandidatesRef = ref(database, `rooms/${roomId}/iceCandidates`);
+// const chatRef = ref(database, `rooms/${roomId}/chat`);
+// const ytSyncRef = ref(database, `rooms/${roomId}/youtubeSync`);
+
+// // Interactivity Workspace Synchronization Paths
+// const activitySyncRef = ref(database, `rooms/${roomId}/activeTab`);
+// const boardDrawRef = ref(database, `rooms/${roomId}/boardDrawing`);
+// const watchSyncRef = ref(database, `rooms/${roomId}/watchSync`);
+
+// /* =========================================================================
+//    3. LIVE TEXT CHAT REPLICATION ENGINE
+//    ========================================================================= */
+// toggleChatPanelBtn.onclick = () => {
+//     chatPanel.classList.add("open");
+//     toggleChatPanelBtn.style.display = "none";
+//     chatMessages.scrollTop = chatMessages.scrollHeight;
+// };
+// closeChatBtn.onclick = () => {
+//     chatPanel.classList.remove("open");
+//     toggleChatPanelBtn.style.display = "flex";
+// };
+
+// function emitChatMessage() {
+//     const text = chatInput.value.trim();
+//     if (!text) return;
+//     push(chatRef, {
+//         sender: myClientId,
+//         message: text,
+//         timestamp: Date.now()
+//     });
+//     chatInput.value = "";
+// }
+
+// sendChatBtn.onclick = emitChatMessage;
+// chatInput.onkeydown = (e) => { if (e.key === "Enter") emitChatMessage(); };
+
+// onChildAdded(chatRef, (snapshot) => {
+//     const data = snapshot.val();
+//     if (!data) return;
+//     const msgElement = document.createElement("div");
+//     const isMe = data.sender === myClientId;
+//     msgElement.className = `msgBlock ${isMe ? "outgoing" : "incoming"}`;
+//     msgElement.innerText = data.message;
+//     chatMessages.appendChild(msgElement);
+//     chatMessages.scrollTop = chatMessages.scrollHeight;
+// });
+
+// /* =========================================================================
+//    4. ROLE SELECTION & WEBRTC SIGNALING ENGINE
+//    ========================================================================= */
+// async function initializeRoomPresence() {
+//     runTransaction(usersRef, (currentUsers) => {
+//         if (!currentUsers) return { host: myClientId, guest: "" };
+//         if (!currentUsers.host) {
+//             currentUsers.host = myClientId;
+//         } else if (!currentUsers.guest && currentUsers.host !== myClientId) {
+//             currentUsers.guest = myClientId;
+//         }
+//         return currentUsers;
+//     }).then(async (result) => {
+//         const users = result.snapshot.val();
+
+//         if (users.host === myClientId) {
+//             myRole = "Host";
+//             localRoleTag.innerText = "Host";
+//             localRoleTag.style.background = "rgba(124, 58, 237, 0.7)";
+//         } else if (users.guest === myClientId) {
+//             myRole = "Guest";
+//             localRoleTag.innerText = "Guest";
+//             localRoleTag.style.background = "rgba(16, 185, 129, 0.7)";
+//         } else {
+//             myRole = "Spectator";
+//             localRoleTag.innerText = "Viewer";
+//         }
+
+//         if (myRole === "Host") {
+//             // Clear any stale signaling data from a previous session before starting fresh
+//             await remove(roomRef);
+//             await remove(iceCandidatesRef);
+
+//             onDisconnect(ref(database, `rooms/${roomId}/users/host`)).set("");
+//             onDisconnect(roomRef).set(null);
+//             onDisconnect(iceCandidatesRef).set(null);
+//             onDisconnect(ytSyncRef).set(null);
+//             onDisconnect(activitySyncRef).set(null);
+//             onDisconnect(boardDrawRef).set(null);
+//             onDisconnect(watchSyncRef).set(null);
+//         } else if (myRole === "Guest") {
+//             onDisconnect(ref(database, `rooms/${roomId}/users/guest`)).set("");
+//         }
+
+//         if (myRole === "Host" || myRole === "Guest") {
+//             await startCall();
+//         }
+
+//         listenToActivitySync();
+//     });
+// }
+
+// async function startCall() {
+//     try {
+//         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+//         localVideo.srcObject = localStream;
+
+//         peerConnection = new RTCPeerConnection(servers);
+//         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+//         peerConnection.ontrack = (event) => {
+//             if (event.streams && event.streams[0]) {
+//                 remoteVideo.srcObject = event.streams[0];
+//                 if (remoteWaiting) remoteWaiting.style.display = "none";
+//                 if (remoteOverlay) remoteOverlay.style.display = "flex";
+//                 if (remoteUserLabel) {
+//                     remoteUserLabel.innerText = (myRole === "Host") ? "Guest User" : "Host User";
+//                 }
+//             }
+//         };
+
+//         peerConnection.onicecandidate = (event) => {
+//             if (event.candidate) {
+//                 push(iceCandidatesRef, {
+//                     candidate: event.candidate.toJSON(),
+//                     senderRole: myRole
+//                 });
+//             }
+//         };
+
+//         // Log connection state changes for easier debugging
+//         peerConnection.onconnectionstatechange = () => {
+//             console.log(`[WebRTC] Connection state: ${peerConnection.connectionState}`);
+//         };
+//         peerConnection.oniceconnectionstatechange = () => {
+//             console.log(`[WebRTC] ICE state: ${peerConnection.iceConnectionState}`);
+//         };
+
+//         await executeWebRTCHandshake();
+
+//     } catch (error) {
+//         console.error("Hardware stream collection failed:", error);
+//         showToast("Camera/Microphone access denied.");
+//     }
+// }
+
+// /* =========================================================================
+//    CORE FIX: ICE candidate queue — candidates that arrive before
+//    remoteDescription is ready are held here and flushed immediately
+//    after setRemoteDescription completes, instead of being silently dropped.
+//    ========================================================================= */
+// async function executeWebRTCHandshake() {
+//     const pendingCandidates = [];
+
+//     async function flushPendingCandidates() {
+//         console.log(`[WebRTC] Flushing ${pendingCandidates.length} queued ICE candidates`);
+//         while (pendingCandidates.length > 0) {
+//             const candidate = pendingCandidates.shift();
+//             try {
+//                 await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+//             } catch (e) {
+//                 console.error("[WebRTC] Queued candidate flush error:", e);
+//             }
+//         }
+//     }
+
+//     // Start listening for remote ICE candidates immediately —
+//     // queue any that arrive before remoteDescription is set
+//     onChildAdded(iceCandidatesRef, async (snapshot) => {
+//         const item = snapshot.val();
+//         if (!item || item.senderRole === myRole) return;
+
+//         if (peerConnection.remoteDescription) {
+//             try {
+//                 await peerConnection.addIceCandidate(new RTCIceCandidate(item.candidate));
+//             } catch (e) {
+//                 console.error("[WebRTC] Candidate injection failure:", e);
+//             }
+//         } else {
+//             // Queue it — never drop it
+//             console.log("[WebRTC] Queuing ICE candidate (remoteDescription not ready yet)");
+//             pendingCandidates.push(item.candidate);
+//         }
+//     });
+
+//     if (myRole === "Host") {
+//         const offer = await peerConnection.createOffer();
+//         await peerConnection.setLocalDescription(offer);
+//         await set(roomRef, { offer: { type: offer.type, sdp: offer.sdp } });
+//         console.log("[WebRTC] Host: offer written to Firebase");
+
+//         onValue(roomRef, async (snapshot) => {
+//             const data = snapshot.val();
+//             if (data && data.answer && !peerConnection.currentRemoteDescription) {
+//                 console.log("[WebRTC] Host: answer received, setting remoteDescription");
+//                 await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+//                 await flushPendingCandidates();
+//             }
+//         });
+
+//     } else if (myRole === "Guest") {
+//         onValue(roomRef, async (snapshot) => {
+//             const data = snapshot.val();
+//             if (!data || !data.offer || peerConnection.currentRemoteDescription) return;
+
+//             console.log("[WebRTC] Guest: offer received, setting remoteDescription");
+//             await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+//             await flushPendingCandidates();
+
+//             const answer = await peerConnection.createAnswer();
+//             await peerConnection.setLocalDescription(answer);
+
+//             const answerRef = ref(database, `rooms/${roomId}/calls/answer`);
+//             await set(answerRef, { type: answer.type, sdp: answer.sdp });
+//             console.log("[WebRTC] Guest: answer written to Firebase");
+//         });
+//     }
+// }
+
+// initializeRoomPresence();
+
+// /* =========================================================================
+//    5. DYNAMIC INTERFACE TABS & PANE TOGGLE ACTIONS (SYNCED)
+//    ========================================================================= */
+// const tabs = document.querySelectorAll(".featTab");
+// const panes = [idlePane, screenPane, whiteboardPane, youtubePane, watchPane, gamesPane];
+
+// const actionButtonMap = {
+//     "screenBtn": "screen",
+//     "wbBtn": "whiteboard",
+//     "ytBtn": "youtube",
+//     "gamesBtn": "games"
+// };
+
+// Object.entries(actionButtonMap).forEach(([btnId, activityName]) => {
+//     const btn = document.getElementById(btnId);
+//     if (btn) btn.addEventListener("click", () => triggerActivityChange(activityName));
+// });
+
+// tabs.forEach(tab => {
+//     tab.addEventListener("click", () => {
+//         triggerActivityChange(tab.getAttribute("data-activity"));
+//     });
+// });
+
+// function triggerActivityChange(activityName) {
+//     set(activitySyncRef, { activeTab: activityName, sender: myClientId });
+//     switchActivity(activityName);
+// }
+
+// function switchActivity(activityName) {
+//     panes.forEach(pane => { if (pane) pane.classList.remove("active"); });
+//     tabs.forEach(t => t.classList.remove("active"));
+//     Object.keys(actionButtonMap).forEach(id => {
+//         const el = document.getElementById(id);
+//         if (el) el.classList.remove("active");
+//     });
+
+//     const activePane = document.getElementById(`${activityName}Pane`);
+//     const activeTab = document.getElementById(`tab-${activityName}`);
+
+//     if (activePane) activePane.classList.add("active");
+//     if (activeTab) activeTab.classList.add("active");
+
+//     const relatedBtnId = Object.keys(actionButtonMap).find(key => actionButtonMap[key] === activityName);
+//     if (relatedBtnId) document.getElementById(relatedBtnId).classList.add("active");
+
+//     if (activityName === "whiteboard") initWhiteboardEngine();
+//     if (activityName === "youtube") initYouTubeSyncEngine();
+//     if (activityName === "games") launchGameZoneUI();
+//     if (activityName === "screen") initScreenShareEngine();
+// }
+
+// function listenToActivitySync() {
+//     onValue(activitySyncRef, (snapshot) => {
+//         const data = snapshot.val();
+//         if (data && data.sender !== myClientId) {
+//             switchActivity(data.activeTab);
+//         }
+//     });
+// }
+
+// /* =========================================================================
+//    5b. GAMES ZONE INJECTION HUB
+//    ========================================================================= */
+// function launchGameZoneUI() {
+//     gamesPane.innerHTML = `
+//         <div class="gamesUI" style="padding: 40px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; height: 100%; width: 100%; box-sizing: border-box; overflow-y: auto; background: #04080f;">
+//             <h1 class="gamesTitle" style="font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; margin-bottom: 30px; background: linear-gradient(135deg, #c084fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 20px rgba(129, 140, 248, 0.2);">🎮 Game Zone</h1>
+//             <div class="gamesGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; width: 100%; max-width: 900px;">
+//                 <div class="gameCard" style="background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; transition: border-color 0.2s;">
+//                     <div style="font-size: 40px;">❌</div>
+//                     <h2 style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #fff;">Tic Tac Toe</h2>
+//                     <p style="font-size: 12px; color: var(--muted); line-height: 1.4;">Classic 3-in-a-row match with your peer.</p>
+//                     <button class="filePickBtn" id="playTicTacToe" style="margin-top: auto; width: 100%; padding: 10px;">Play Now</button>
+//                 </div>
+//                 <div class="gameCard" style="background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+//                     <div style="font-size: 40px;">👑</div>
+//                     <h2 style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #fff;">Multiplayer Chess</h2>
+//                     <p style="font-size: 12px; color: var(--muted); line-height: 1.4;">Go head-to-head in a deep strategic battle.</p>
+//                     <button class="filePickBtn" id="playChess" style="margin-top: auto; width: 100%; padding: 10px; background: #8b5cf6;">Play Now</button>
+//                 </div>
+//                 <div class="gameCard" style="background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+//                     <div style="font-size: 40px;">🃏</div>
+//                     <h2 style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #fff;">Uno Cards</h2>
+//                     <p style="font-size: 12px; color: var(--muted); line-height: 1.4;">Match colors, drop Wilds, and clear your hand.</p>
+//                     <button class="filePickBtn" id="playUno" style="margin-top: auto; width: 100%; padding: 10px; background: #ec4899;">Play Now</button>
+//                 </div>
+//                 <div class="gameCard" style="background: var(--card2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px;">
+//                     <div style="font-size: 40px;">🐍</div>
+//                     <h2 style="font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: #fff;">Co-op Snake</h2>
+//                     <p style="font-size: 12px; color: var(--muted); line-height: 1.4;">Eat food together without crashing into each other.</p>
+//                     <button class="filePickBtn" id="playSnake" style="margin-top: auto; width: 100%; padding: 10px; background: #10b981;">Play Now</button>
+//                 </div>
+//             </div>
+//         </div>`;
+
+//     document.getElementById("playTicTacToe").onclick = () => loadGameFrame("tictactoe.html");
+//     document.getElementById("playChess").onclick      = () => loadGameFrame("chess.html");
+//     document.getElementById("playUno").onclick        = () => loadGameFrame("uno.html");
+//     document.getElementById("playSnake").onclick      = () => loadGameFrame("snake.html");
+// }
+
+// function loadGameFrame(fileName) {
+//     gamesPane.innerHTML = `
+//         <div style="width: 100%; height: 100%; position: relative; background: #04080f;">
+//             <button id="exitGameBtn" style="position: absolute; top: 10px; left: 10px; z-index: 9999; padding: 6px 12px; background: rgba(244, 63, 94, 0.2); border: 1px solid rgba(244, 63, 94, 0.4); color: #fda4af; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 700; font-family: 'DM Sans', sans-serif;">↩ Leave Game</button>
+//             <iframe src="games/${fileName}?room=${roomId}" style="width:100%; height:100%; border:none; background:#04080f; display:block;"></iframe>
+//         </div>`;
+//     document.getElementById("exitGameBtn").onclick = () => launchGameZoneUI();
+// }
+
+// /* =========================================================================
+//    5c. LOCAL SCREEN SHARING CAPTURE ENGINE
+//    ========================================================================= */
+// async function initScreenShareEngine() {
+//     const screenVideo = document.getElementById("screenVideo");
+//     if (!screenVideo || screenVideo.srcObject) return;
+
+//     try {
+//         screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+//         screenVideo.srcObject = screenStream;
+//         screenStream.getVideoTracks()[0].onended = () => {
+//             screenVideo.srcObject = null;
+//             triggerActivityChange("idle");
+//         };
+//     } catch (err) {
+//         console.warn("Screen display capture rejected:", err);
+//     }
+// }
+
+// /* =========================================================================
+//    6. YOUTUBE SHARED PLAYBACK SYNCHRONIZATION ENGINE
+//    ========================================================================= */
+// let ytPlayer = null;
+// let isYtApiLoaded = false;
+// let isUpdatingFromFirebase = false;
+
+// function initYouTubeSyncEngine() {
+//     if (isYtApiLoaded) return;
+//     isYtApiLoaded = true;
+
+//     if (!window.YT) {
+//         const tag = document.createElement('script');
+//         tag.src = "https://www.youtube.com/iframe_api";
+//         const firstScriptTag = document.getElementsByTagName('script')[0];
+//         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+//     } else {
+//         buildYTIframeInstance();
+//     }
+
+//     window.onYouTubeIframeAPIReady = () => {
+//         buildYTIframeInstance();
+//     };
+// }
+
+// function buildYTIframeInstance() {
+//     if (ytPlayer) return;
+//     ytPlayer = new YT.Player('ytPlayer', {
+//         height: '100%',
+//         width: '100%',
+//         videoId: '',
+//         playerVars: { 'playsinline': 1, 'controls': 1, 'rel': 0 },
+//         events: { 'onStateChange': handlePlayerStateChange }
+//     });
+//     listenToFirebaseYTSync();
+// }
+
+// function handlePlayerStateChange(event) {
+//     if (isUpdatingFromFirebase || !ytPlayer) return;
+//     const currentState = event.data;
+//     const currentTime = ytPlayer.getCurrentTime();
+//     if (currentState === YT.PlayerState.PLAYING || currentState === YT.PlayerState.PAUSED) {
+//         set(ytSyncRef, {
+//             sender: myClientId,
+//             state: currentState,
+//             time: currentTime,
+//             videoId: ytPlayer.getVideoData().video_id,
+//             timestamp: Date.now()
+//         });
+//     }
+// }
+
+// function listenToFirebaseYTSync() {
+//     onValue(ytSyncRef, (snapshot) => {
+//         const data = snapshot.val();
+//         if (!data || data.sender === myClientId || !ytPlayer) return;
+
+//         isUpdatingFromFirebase = true;
+//         const currentVideoId = ytPlayer.getVideoData().video_id;
+
+//         if (data.videoId && data.videoId !== currentVideoId) {
+//             document.getElementById("ytPlaceholderDiv").style.display = "none";
+//             document.getElementById("ytPlayerContainer").style.display = "block";
+//             ytPlayer.loadVideoById(data.videoId, data.time);
+//         }
+
+//         const localTime = ytPlayer.getCurrentTime();
+//         if (Math.abs(localTime - data.time) > 2) {
+//             ytPlayer.seekTo(data.time, true);
+//         }
+
+//         if (data.state === YT.PlayerState.PLAYING) {
+//             ytPlayer.playVideo();
+//         } else if (data.state === YT.PlayerState.PAUSED) {
+//             ytPlayer.pauseVideo();
+//         }
+
+//         setTimeout(() => { isUpdatingFromFirebase = false; }, 600);
+//     });
+// }
+
+// document.getElementById("ytLoadBtn").onclick = () => {
+//     const urlVal = document.getElementById("ytUrl").value.trim();
+//     let videoId = urlVal;
+//     if (urlVal.includes("v=")) videoId = urlVal.split("v=")[1].split("&")[0];
+//     else if (urlVal.includes("youtu.be/")) videoId = urlVal.split("youtu.be/")[1].split("?")[0];
+
+//     if (videoId && ytPlayer) {
+//         document.getElementById("ytPlaceholderDiv").style.display = "none";
+//         document.getElementById("ytPlayerContainer").style.display = "block";
+//         set(ytSyncRef, {
+//             sender: myClientId,
+//             state: YT.PlayerState.PLAYING,
+//             time: 0,
+//             videoId: videoId,
+//             timestamp: Date.now()
+//         });
+//         ytPlayer.loadVideoById(videoId, 0);
+//     }
+// };
+
+// /* =========================================================================
+//    7. WHITEBOARD DRAWING ENGINE (VECTOR SYNCED)
+//    ========================================================================= */
+// let isWbInitialized = false;
+// function initWhiteboardEngine() {
+//     if (isWbInitialized) return;
+//     isWbInitialized = true;
+
+//     const canvas = document.getElementById("wbCanvas");
+//     const ctx = canvas.getContext("2d");
+
+//     canvas.width = canvas.parentElement.clientWidth || 800;
+//     canvas.height = canvas.parentElement.clientHeight || 500;
+
+//     let drawing = false;
+//     let strokeColor = "#000000";
+//     let strokeSize = 4;
+//     let toolMode = "pen";
+
+//     const colors = ["#000000", "#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#a855f7"];
+//     const colorsContainer = document.getElementById("wbColors");
+//     colorsContainer.innerHTML = "";
+
+//     colors.forEach((color, idx) => {
+//         const dot = document.createElement("div");
+//         dot.className = `colorDot ${idx === 0 ? "selected" : ""}`;
+//         dot.style.backgroundColor = color;
+//         dot.addEventListener("click", () => {
+//             document.querySelectorAll(".colorDot").forEach(d => d.classList.remove("selected"));
+//             dot.classList.add("selected");
+//             strokeColor = color;
+//             toolMode = "pen";
+//         });
+//         colorsContainer.appendChild(dot);
+//     });
+
+//     document.getElementById("wbPen").onclick = () => { toolMode = "pen"; };
+//     document.getElementById("wbEraser").onclick = () => { toolMode = "eraser"; };
+//     document.getElementById("wbSizeSlider").oninput = (e) => strokeSize = e.target.value;
+//     document.getElementById("wbClearBtn").onclick = () => {
+//         ctx.clearRect(0, 0, canvas.width, canvas.height);
+//         set(boardDrawRef, { clear: Date.now() });
+//     };
+
+//     let lastX = 0, lastY = 0;
+
+//     canvas.addEventListener("mousedown", (e) => {
+//         drawing = true;
+//         const rect = canvas.getBoundingClientRect();
+//         lastX = e.clientX - rect.left;
+//         lastY = e.clientY - rect.top;
+//     });
+//     canvas.addEventListener("mouseup", () => drawing = false);
+//     canvas.addEventListener("mouseleave", () => drawing = false);
+//     canvas.addEventListener("mousemove", (e) => {
+//         if (!drawing) return;
+//         const rect = canvas.getBoundingClientRect();
+//         const currentX = e.clientX - rect.left;
+//         const currentY = e.clientY - rect.top;
+
+//         const drawData = {
+//             fromX: lastX, fromY: lastY,
+//             toX: currentX, toY: currentY,
+//             color: (toolMode === "eraser") ? "#FFFFFF" : strokeColor,
+//             size: strokeSize,
+//             sender: myClientId
+//         };
+
+//         drawSegment(ctx, drawData);
+//         push(boardDrawRef, drawData);
+
+//         lastX = currentX;
+//         lastY = currentY;
+//     });
+
+//     onChildAdded(boardDrawRef, (snapshot) => {
+//         const data = snapshot.val();
+//         if (!data) return;
+//         if (data.clear) {
+//             ctx.clearRect(0, 0, canvas.width, canvas.height);
+//         } else if (data.sender !== myClientId) {
+//             drawSegment(ctx, data);
+//         }
+//     });
+// }
+
+// function drawSegment(context, data) {
+//     context.beginPath();
+//     context.strokeStyle = data.color;
+//     context.lineWidth = data.size;
+//     context.lineCap = "round";
+//     context.moveTo(data.fromX, data.fromY);
+//     context.lineTo(data.toX, data.toY);
+//     context.stroke();
+//     context.closePath();
+// }
+
+// /* =========================================================================
+//    8. WATCH PARTY ENGINE
+//    ========================================================================= */
+// const filePickBtn = document.getElementById("filePickBtn");
+// const videoFilePick = document.getElementById("videoFilePick");
+// const watchVideo = document.getElementById("watchVideo");
+// const watchFilePicker = document.getElementById("watchFilePicker");
+
+// let localWatchUpdate = false;
+
+// if (filePickBtn && videoFilePick) {
+//     filePickBtn.onclick = (e) => {
+//         e.preventDefault();
+//         e.stopPropagation();
+//         videoFilePick.click();
+//     };
+// }
+
+// if (videoFilePick) {
+//     videoFilePick.onchange = (e) => {
+//         const file = e.target.files[0];
+//         if (file) {
+//             const localBlobUrl = URL.createObjectURL(file);
+//             if (watchFilePicker) watchFilePicker.style.display = "none";
+//             if (watchVideo) {
+//                 watchVideo.src = localBlobUrl;
+//                 watchVideo.style.display = "block";
+//                 watchVideo.load();
+//                 setupWatchPartyListeners();
+//             }
+//         }
+//     };
+// }
+
+// function setupWatchPartyListeners() {
+//     if (!watchVideo) return;
+
+//     watchVideo.onplay = () => {
+//         if (localWatchUpdate) return;
+//         set(watchSyncRef, { action: "play", time: watchVideo.currentTime, sender: myClientId });
+//     };
+//     watchVideo.onpause = () => {
+//         if (localWatchUpdate) return;
+//         set(watchSyncRef, { action: "pause", time: watchVideo.currentTime, sender: myClientId });
+//     };
+//     watchVideo.onseeking = () => {
+//         if (localWatchUpdate) return;
+//         set(watchSyncRef, { action: "seek", time: watchVideo.currentTime, sender: myClientId });
+//     };
+
+//     onValue(watchSyncRef, (snapshot) => {
+//         const data = snapshot.val();
+//         if (!data || data.sender === myClientId) return;
+
+//         localWatchUpdate = true;
+//         if (Math.abs(watchVideo.currentTime - data.time) > 1.5) {
+//             watchVideo.currentTime = data.time;
+//         }
+//         if (data.action === "play" && watchVideo.paused) {
+//             watchVideo.play().catch(() => {});
+//         } else if (data.action === "pause" && !watchVideo.paused) {
+//             watchVideo.pause();
+//         }
+//         setTimeout(() => { localWatchUpdate = false; }, 300);
+//     });
+// }
+
+// /* =========================================================================
+//    9. HARDWARE MULTIMEDIA MODIFIERS & UTILITIES
+//    ========================================================================= */
+// let micOn = true;
+// micBtn.onclick = () => {
+//     micOn = !micOn;
+//     if (localStream) localStream.getAudioTracks().forEach(t => t.enabled = micOn);
+//     micBtn.classList.toggle("off", !micOn);
+//     localBars.classList.toggle("off", !micOn);
+// };
+
+// let camOn = true;
+// camBtn.onclick = () => {
+//     camOn = !camOn;
+//     if (localStream) localStream.getVideoTracks().forEach(t => t.enabled = camOn);
+//     camBtn.classList.toggle("off", !camOn);
+//     localOff.style.display = camOn ? "none" : "flex";
+// };
+
+// roomCodeBtn.onclick = async () => {
+//     await navigator.clipboard.writeText(window.location.href);
+//     showToast("Room link copied to clipboard! 📋");
+// };
+
+// function showToast(msg) {
+//     toast.innerText = msg;
+//     toast.classList.add("show");
+//     setTimeout(() => toast.classList.remove("show"), 2500);
+// }
+
+// const reactBtn = document.getElementById("reactBtn");
+// const emojisList = ["🍿", "🔥", "😂", "👏", "🎉"];
+// if (reactBtn) {
+//     reactBtn.onclick = () => {
+//         const node = document.createElement("div");
+//         node.className = "floatEmoji";
+//         node.innerText = emojisList[Math.floor(Math.random() * emojisList.length)];
+//         node.style.left = (20 + Math.random() * 60) + "%";
+//         node.style.bottom = "80px";
+//         document.body.appendChild(node);
+//         setTimeout(() => node.remove(), 2200);
+//     };
+// }
+
+// const leaveApp = () => { window.location.href = "home.html"; };
+// if (leaveBtn) leaveBtn.onclick = leaveApp;
+// if (endCallBtn) endCallBtn.onclick = () => { alert("Call Ended"); leaveApp(); };
+
+
+
+
+
+
+
 import { database } from "./firebase.js";
 import { ref, set, onValue, push, onChildAdded, runTransaction, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
@@ -1706,21 +2454,88 @@ function loadGameFrame(fileName) {
 }
 
 /* =========================================================================
-   5c. LOCAL SCREEN SHARING CAPTURE ENGINE
+   5c. SCREEN SHARING ENGINE  ← FIXED
+   
+   ROOT CAUSE: Old code only set screenStream on a local <video> element.
+   It never called replaceTrack() on the RTCPeerConnection sender, so the
+   remote user kept seeing the camera feed the entire time.
+
+   FIX:
+   - After getDisplayMedia(), find the video sender in peerConnection and
+     call replaceTrack() with the screen track. No renegotiation needed.
+   - On share end (native browser stop button OR toggle), swap the camera
+     track back into the sender.
    ========================================================================= */
 async function initScreenShareEngine() {
     const screenVideo = document.getElementById("screenVideo");
-    if (!screenVideo || screenVideo.srcObject) return;
+    if (!screenVideo) return;
+
+    // If already sharing, stop and restore camera
+    if (screenStream) {
+        screenStream.getTracks().forEach(t => t.stop());
+        screenStream = null;
+        screenVideo.srcObject = null;
+
+        if (peerConnection && localStream) {
+            const cameraTrack = localStream.getVideoTracks()[0];
+            const videoSender = peerConnection
+                .getSenders()
+                .find(s => s.track && s.track.kind === "video");
+            if (videoSender && cameraTrack) {
+                await videoSender.replaceTrack(cameraTrack);
+            }
+        }
+        triggerActivityChange("idle");
+        return;
+    }
 
     try {
-        screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+        screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: { cursor: "always" },
+            audio: false
+        });
+
+        // Show screen locally
         screenVideo.srcObject = screenStream;
-        screenStream.getVideoTracks()[0].onended = () => {
+
+        // ── KEY FIX: push screen track into the live peer connection ──────
+        if (peerConnection) {
+            const screenTrack = screenStream.getVideoTracks()[0];
+            const videoSender = peerConnection
+                .getSenders()
+                .find(s => s.track && s.track.kind === "video");
+
+            if (videoSender) {
+                // replaceTrack() swaps mid-call with NO renegotiation needed
+                await videoSender.replaceTrack(screenTrack);
+            } else {
+                // Fallback: add as new track (triggers renegotiation)
+                peerConnection.addTrack(screenTrack, screenStream);
+            }
+        }
+
+        // User clicked "Stop sharing" from the browser's native popup bar
+        screenStream.getVideoTracks()[0].onended = async () => {
             screenVideo.srcObject = null;
+            screenStream = null;
+
+            // Restore the camera track in the peer connection
+            if (peerConnection && localStream) {
+                const cameraTrack = localStream.getVideoTracks()[0];
+                const videoSender = peerConnection
+                    .getSenders()
+                    .find(s => s.track && s.track.kind === "video");
+                if (videoSender && cameraTrack) {
+                    await videoSender.replaceTrack(cameraTrack);
+                }
+            }
             triggerActivityChange("idle");
         };
+
     } catch (err) {
         console.warn("Screen display capture rejected:", err);
+        showToast("Screen sharing cancelled or not supported.");
+        triggerActivityChange("idle");
     }
 }
 
@@ -1923,8 +2738,51 @@ function drawSegment(context, data) {
 }
 
 /* =========================================================================
-   8. WATCH PARTY ENGINE
+   8. WATCH PARTY ENGINE  ← FIXED
+   
+   ROOT CAUSE 1 — MKV not playing on Mac/Safari:
+   Safari does not support MKV containers at all. Chrome/Firefox only decode
+   MKV if the internal codec is VP8/VP9/AV1. Most real-world MKV files use
+   H.264, which browsers refuse to unwrap from MKV.
+
+   ROOT CAUSE 2 — video silently failing:
+   No error feedback was shown to the user when the browser couldn't decode
+   the file, leading to a blank screen with no explanation.
+
+   FIX:
+   - canBrowserPlay() checks canPlayType() and extension before loading.
+   - watchVideo.onerror fires with a descriptive message on codec failure.
+   - showWatchError() injects a styled banner guiding the user to convert
+     their file to MP4 using HandBrake or CloudConvert.
    ========================================================================= */
+
+const UNSUPPORTED_MSG = `
+    ⚠️ This file format isn't supported by your browser.<br><br>
+    <strong>MKV files</strong> don't work on Safari/macOS natively.<br>
+    Please convert your video to <strong>MP4 (H.264)</strong> using a free tool:<br>
+    <a href="https://handbrake.fr" target="_blank" style="color:#a78bfa;">HandBrake (desktop)</a>
+    &nbsp;or&nbsp;
+    <a href="https://cloudconvert.com/mkv-to-mp4" target="_blank" style="color:#a78bfa;">CloudConvert (online)</a>
+`;
+
+function canBrowserPlay(file) {
+    const v = document.createElement("video");
+
+    // Check by MIME type if available
+    if (file.type && file.type !== "") {
+        const support = v.canPlayType(file.type);
+        if (support === "") return false;   // browser is certain it can't play this
+        if (support === "probably" || support === "maybe") return true;
+    }
+
+    // Fallback: check file extension
+    const ext = file.name.split(".").pop().toLowerCase();
+    if (ext === "mkv") return false;  // never safe to assume MKV will work
+    if (["mp4", "m4v", "webm", "ogv", "mov"].includes(ext)) return true;
+
+    return true; // optimistic for unknown types — let onerror catch it
+}
+
 const filePickBtn = document.getElementById("filePickBtn");
 const videoFilePick = document.getElementById("videoFilePick");
 const watchVideo = document.getElementById("watchVideo");
@@ -1943,17 +2801,69 @@ if (filePickBtn && videoFilePick) {
 if (videoFilePick) {
     videoFilePick.onchange = (e) => {
         const file = e.target.files[0];
-        if (file) {
-            const localBlobUrl = URL.createObjectURL(file);
-            if (watchFilePicker) watchFilePicker.style.display = "none";
-            if (watchVideo) {
-                watchVideo.src = localBlobUrl;
-                watchVideo.style.display = "block";
-                watchVideo.load();
-                setupWatchPartyListeners();
-            }
+        if (!file) return;
+
+        // Remove any previous error banner
+        const existingBanner = document.getElementById("watchErrorBanner");
+        if (existingBanner) existingBanner.remove();
+
+        // Check browser support before attempting to load
+        if (!canBrowserPlay(file)) {
+            showWatchError(UNSUPPORTED_MSG);
+            return;
+        }
+
+        const localBlobUrl = URL.createObjectURL(file);
+
+        if (watchFilePicker) watchFilePicker.style.display = "none";
+
+        if (watchVideo) {
+            watchVideo.style.display = "block";
+            watchVideo.src = localBlobUrl;
+
+            // Catch codec/container errors after the browser tries to decode
+            watchVideo.onerror = () => {
+                const err = watchVideo.error;
+                let detail = "Unknown playback error.";
+                if (err) {
+                    if (err.code === 4) detail = "This format is not supported by your browser.";
+                    else if (err.code === 3) detail = "Codec decoding error — please convert to MP4/H.264.";
+                    else detail = `Media error code ${err.code}.`;
+                }
+                watchVideo.style.display = "none";
+                if (watchFilePicker) watchFilePicker.style.display = "flex";
+                showWatchError(`⚠️ Could not play this file.<br>${detail}<br><br>${UNSUPPORTED_MSG}`);
+            };
+
+            watchVideo.load();
+            setupWatchPartyListeners();
         }
     };
+}
+
+function showWatchError(htmlMsg) {
+    if (!watchFilePicker) return;
+    watchFilePicker.style.display = "flex";
+
+    let banner = document.getElementById("watchErrorBanner");
+    if (!banner) {
+        banner = document.createElement("div");
+        banner.id = "watchErrorBanner";
+        banner.style.cssText = `
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.4);
+            border-radius: 10px;
+            padding: 14px 18px;
+            color: #fda4af;
+            font-size: 13px;
+            line-height: 1.6;
+            text-align: center;
+            max-width: 420px;
+            margin-bottom: 16px;
+        `;
+        watchFilePicker.insertBefore(banner, watchFilePicker.firstChild);
+    }
+    banner.innerHTML = htmlMsg;
 }
 
 function setupWatchPartyListeners() {
